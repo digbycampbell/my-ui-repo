@@ -1,0 +1,69 @@
+/**
+ * Kereone Theme — CSS Variables for shadcn/ui apps
+ *
+ * Import into your app's index.css:
+ *   @import "../shared-ui/css/theme-kereone.css";
+ */
+
+:root {
+  /* Structure — shared with Digio */
+  --background: 0 0% 100%;
+  --foreground: 222 15% 28%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 15% 28%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 15% 28%;
+
+  /* Brand — Blue-Teal */
+  --primary: 196 33% 42%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Teal light */
+  --secondary: 196 40% 91%;
+  --secondary-foreground: 222 15% 28%;
+
+  /* Neutrals — shared with Digio */
+  --muted: 220 13% 95%;
+  --muted-foreground: 220 9% 46%;
+
+  --accent: 196 40% 91%;
+  --accent-foreground: 222 15% 28%;
+
+  /* States — shared with Digio */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Chrome — shared with Digio */
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 196 33% 42%;
+
+  /* Sidebar */
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 222 15% 28%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-accent: 196 40% 91%;
+  --sidebar-accent-foreground: 222 15% 28%;
+
+  /* Radius */
+  --radius: 0.625rem;
+
+  /* Shadows */
+  --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+
+  /* Roster staff colours (protected — do not change) */
+  --roster-kobe: #fecaca;
+  --roster-kobe-text: #7f1d1d;
+  --roster-kobe-border: #f87171;
+  --roster-wiki: #fef08a;
+  --roster-wiki-text: #713f12;
+  --roster-wiki-border: #facc15;
+  --roster-mark: #bbf7d0;
+  --roster-mark-text: #064e3b;
+  --roster-mark-border: #4ade80;
+  --roster-arby: #bfdbfe;
+  --roster-arby-text: #1e3a8a;
+  --roster-arby-border: #60a5fa;
+}

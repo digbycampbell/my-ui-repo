@@ -1,0 +1,72 @@
+/**
+ * Digio Base Utilities — Shared CSS classes for all apps
+ *
+ * Import into your app's index.css:
+ *   @import "../shared-ui/css/digio-base.css";
+ */
+
+/* ------------------------------------------------------------------ */
+/* Font variables                                                      */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --font-sans: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography utilities                                                */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  /* Section label — small mono uppercase (e.g. "AI SETTINGS", "EXPERTISE") */
+  .section-label {
+    @apply text-xs font-medium tracking-widest text-primary uppercase font-mono;
+  }
+
+  /* Metadata label — small uppercase (e.g. "Status", "Date") */
+  .meta-label {
+    @apply text-xs font-medium tracking-wider text-muted-foreground uppercase;
+  }
+
+  /* Body text — readable muted paragraph */
+  .body-text {
+    @apply text-sm text-muted-foreground leading-relaxed;
+  }
+
+  /* Mono data — fixed-width values (amounts, codes, percentages) */
+  .mono-data {
+    @apply font-mono text-sm tabular-nums;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Icon badges                                                         */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  /* Standard icon badge — solid primary background, white icon */
+  .icon-badge {
+    @apply w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground;
+  }
+
+  /* Small icon badge — light primary background, primary icon */
+  .icon-badge-sm {
+    @apply w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center text-primary;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                      */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

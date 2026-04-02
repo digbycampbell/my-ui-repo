@@ -1,0 +1,86 @@
+/**
+ * Digio Theme — CSS Variables for shadcn/ui apps
+ *
+ * Import into your app's index.css:
+ *   @import "../shared-ui/css/theme-digio.css";
+ */
+
+:root {
+  /* Structure — Bright Gray family */
+  --background: 0 0% 100%;
+  --foreground: 222 15% 28%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 15% 28%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 15% 28%;
+
+  /* Brand — Magic Mint */
+  --primary: 152 56% 64%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Mint light */
+  --secondary: 152 68% 93%;
+  --secondary-foreground: 222 15% 28%;
+
+  /* Neutrals */
+  --muted: 220 13% 95%;
+  --muted-foreground: 220 9% 46%;
+
+  --accent: 152 68% 93%;
+  --accent-foreground: 222 15% 28%;
+
+  /* States */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Chrome */
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 152 56% 64%;
+
+  /* Sidebar */
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 222 15% 28%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-accent: 152 68% 93%;
+  --sidebar-accent-foreground: 222 15% 28%;
+
+  /* Radius */
+  --radius: 0.625rem;
+
+  /* Shadows */
+  --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark mode */
+.dark {
+  --background: 222 15% 11%;
+  --foreground: 220 13% 95%;
+
+  --card: 222 15% 14%;
+  --card-foreground: 220 13% 95%;
+
+  --popover: 222 15% 14%;
+  --popover-foreground: 220 13% 95%;
+
+  --primary: 152 76% 81%;
+  --primary-foreground: 222 15% 28%;
+
+  --secondary: 222 15% 18%;
+  --secondary-foreground: 220 13% 95%;
+
+  --muted: 222 15% 18%;
+  --muted-foreground: 220 9% 65%;
+
+  --accent: 222 15% 18%;
+  --accent-foreground: 220 13% 95%;
+
+  --destructive: 0 60% 50%;
+  --destructive-foreground: 220 13% 95%;
+
+  --border: 222 15% 20%;
+  --input: 222 15% 20%;
+  --ring: 152 76% 81%;
+}
