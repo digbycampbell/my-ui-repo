@@ -208,6 +208,18 @@ Never render `ModalOverlay`, `AlertDialog`, or any `position:fixed` element insi
 ### Pitfall: Framer Motion for sidebar
 Don't use `<motion.aside>` for sidebar animation. The transform property traps fixed descendants. Use CSS `transition-[width]` instead (already handled by `SidebarShell`).
 
+### Pitfall: Missing font variables in @theme
+Tailwind CSS 4 only generates utility classes (`font-display`, `font-mono`, etc.) from variables declared inside `@theme`. The font variables in `digio-base.css` are set on `:root` which is fine for CSS but **invisible to Tailwind**. You must redeclare them in your app's `@theme` block:
+```css
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-serif: "Instrument Serif", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+```
+Without this, `font-display` silently falls back to the browser default and headings won't render in Outfit.
+
 ### Pitfall: Stock shadcn/ui radii
 shadcn components default to `rounded-md` or `rounded-lg`. Override them:
 - Popover → `rounded-2xl`
