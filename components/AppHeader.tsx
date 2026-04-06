@@ -1,22 +1,18 @@
 /**
- * AppHeader — Shared top navigation bar for the Digio ecosystem.
+ * @deprecated Use `AppNavbar` instead for new apps.
  *
- * Layout: [Logo + Name]  [Center slot]  [Lock + User + Menu]
+ * AppNavbar uses `fixed` positioning and a flex layout matching the digio-website
+ * gold standard. AppHeader uses `sticky` with a 3-column grid which doesn't match
+ * the website pattern.
  *
- * The center slot is flexible — pass a DateNavigator, search bar, or nothing.
- * The right section always shows (in order): lock button, user email, menu.
+ * Migration:
+ *   - Replace `<AppHeader appName="digio receipts" ...>` with
+ *     `<AppNavbar toolLabel="Receipts" ...>`
+ *   - AppNavbar includes the Digio logo and sign out button automatically
+ *   - Pass custom action buttons via the `actions` prop
  *
- * Uses glassmorphism (bg-white/70 backdrop-blur-xl) per the reimagined design.
- *
- * @example
- * <AppHeader
- *   appName="digio receipts"
- *   centerSlot={<DateNavigator {...dateNavProps} />}
- *   isLocked={isLocked}
- *   onToggleLock={handleToggleLock}
- *   userEmail="user@example.com"
- *   onMenuClick={() => setMenuOpen(true)}
- * />
+ * AppHeader — Legacy top navigation bar for the Digio ecosystem.
+ * Kept for backwards compatibility with existing apps.
  */
 
 import { PanelLeft } from "lucide-react";

@@ -5,13 +5,18 @@
 > sophisticated, minimalist, Apple-inspired interface for the intersection of
 > power infrastructure and digital intelligence.
 >
-> **Version**: `3.1.0`
+> **Version**: `3.2.0`
 > **Last updated**: 2026-04-06
 
 ---
 
-## What Changed in v3.1
+## What Changed in v3.2
 
+- **App Layout Recipe**: Full three-layer layout pattern (Navbar → Sidebar → Main Content) with exact component usage
+- **AppNavbar component**: Fixed navbar with glassmorphism, tool label, lock button, user badge
+- **SidebarShell component**: Documented shared sidebar shell with open/collapsed/close props and nav item classes
+- **Layout offset pattern**: `pt-14` for navbar, `lg:pl-72` / `lg:pl-16` for sidebar, `p-8 lg:p-12` for content
+- **Common pitfalls**: Modal-inside-sidebar trap, Framer Motion transform issue, shadcn override list, accent vs data colors
 - **Background colors**: Documented `bg-slate-50` as acceptable for app areas, dashboards, and section contrast
 - **Card radius system**: Two classes — `.card-bento` (`rounded-[40px]`) for large/feature cards, `.card-standard` (`rounded-[32px]`) for project/info/form cards
 - **Textarea input**: Added `.input-textarea` class with `rounded-2xl` instead of pill shape
@@ -334,6 +339,108 @@ import { AppHeader } from "../shared-ui/components";
 
 ---
 
+## App Layout Recipe
+
+### The Three-Layer Layout
+
+Every Digio tool app uses this exact structure:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  NAVBAR (fixed top-0, h-14, z-40, glassmorphism)        │
+├──────┬──────────────────────────────────────────────────┤
+│      │                                                  │
+│  S   │   MAIN CONTENT                                   │
+│  I   │   (pt-14 for navbar offset)                      │
+│  D   │   (lg:pl-72 or lg:pl-16 for sidebar offset)     │
+│  E   │   (p-8 lg:p-12 for content padding)              │
+│  B   │                                                  │
+│  A   │                                                  │
+│  R   │                                                  │
+│      │                                                  │
+├──────┴──────────────────────────────────────────────────┤
+│  ReadOnlyBar (fixed bottom-0, when locked)              │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Navbar (`AppNavbar` component)
+
+```tsx
+import { AppNavbar } from "../shared-ui/components";
+
+<AppNavbar
+  toolLabel="Receipts"
+  onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+  actions={<button className="btn-primary py-2 px-4 text-sm">Action</button>}
+  isLocked={isLocked}
+  onToggleLock={handleToggleLock}
+  userEmail="user@digio.nz"
+  onSignOut={() => { sessionStorage.clear(); window.location.reload(); }}
+/>
+```
+
+- Fixed: `fixed top-0 left-0 right-0 h-14 z-40`
+- Left: Mobile toggle (PanelLeft, `lg:hidden`) → Animated Digio SVG logo (geometric D with electrical transient) → "Digio." text (`font-display font-bold`) → "TOOLS" label (`font-mono font-medium`, NOT `font-bold`) → optional breadcrumb (`> [icon] ToolName`)
+- Right: Custom actions → LockButton → User badge (indigo avatar + email) → Sign out
+- **Logo**: Inline SVG with Framer Motion `motion.path` animation — NOT a text letter in a circle
+- **"TOOLS" label**: `text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-slate-400` — do NOT use `.section-label` (it's `font-bold`, too heavy here)
+
+### Sidebar (`SidebarShell` component)
+
+```tsx
+import { SidebarShell, sidebarNavItemClasses, sidebarNavIconClasses, sidebarNavLabelClasses } from "../shared-ui/components";
+
+<SidebarShell
+  open={sidebarOpen}
+  collapsed={sidebarCollapsed}
+  onClose={() => setSidebarOpen(false)}
+  onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+>
+  {/* Your nav items here */}
+</SidebarShell>
+```
+
+- Fixed: `fixed top-14 left-0 bottom-0 z-50`
+- Width: `w-72` expanded / `w-[64px]` collapsed
+- PanelLeft/PanelLeftClose toggle at bottom
+
+### Main Content Offset
+
+```tsx
+<main className={`pt-14 transition-all duration-300 ${
+  sidebarCollapsed ? "lg:pl-16" : "lg:pl-72"
+}`}>
+  <div className="p-8 lg:p-12">
+    {/* Page content */}
+  </div>
+</main>
+```
+
+### State Management
+
+The parent component must own these three state values:
+```tsx
+const [sidebarOpen, setSidebarOpen] = useState(false);      // mobile
+const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // desktop
+const [isLocked, setIsLocked] = useState(true);             // edit gating
+```
+
+### Common Pitfalls
+
+1. **Never render modals inside the sidebar.** CSS transforms (from `transition-[width]`) create a new containing block — `position: fixed` children will be positioned relative to the sidebar, not the viewport. Always render `ModalOverlay`, `AlertDialog`, or any portal at the root level.
+
+2. **Don't use Framer Motion for the sidebar width.** Framer Motion applies CSS `transform` for animations, which traps fixed-position descendants. Use CSS `transition-[width]` instead.
+
+3. **shadcn/ui components need explicit overrides.** Stock shadcn components use rounded-md/rounded-lg. Override these to match the design system:
+   - `Popover`: `rounded-md` → `rounded-2xl`
+   - `AlertDialog`: `sm:rounded-lg` → `rounded-[32px]`
+   - `Progress indicator`: `bg-primary` → `bg-slate-900`
+   - `Checkbox`: `rounded-sm` → `rounded`, checked state `bg-slate-900`
+
+4. **Amount/data colors use emerald, not tool accent.** Monetary values in cards and tables should use `text-emerald-600`, not the tool's accent color. The tool accent is for branding elements only (app name, logo icon, sparkles).
+
+---
+
 ## AI Development Rules
 
 When extending this design system:
@@ -357,3 +464,4 @@ When extending this design system:
 | 2.0.0 | 2026-04-02 | Unified styleguide: two theme families, Outfit + JetBrains Mono |
 | 3.0.0 | 2026-04-05 | Reimagined design system: Slate/Cyan/Indigo, 4-font harmonized method, pill UI, bento grids, glassmorphism |
 | 3.1.0 | 2026-04-06 | Gap analysis fixes: backgrounds, card radii, sidebar spec, transitions, links, forms, spacing, CSS utility adoption |
+| 3.2.0 | 2026-04-06 | App Layout Recipe: AppNavbar, SidebarShell components, layout offset pattern, common pitfalls |

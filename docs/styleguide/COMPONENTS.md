@@ -1,573 +1,245 @@
 # Digio Component Patterns
 
-> **Version**: 2.0.0
-> **Last updated**: 2026-04-02
->
-> Components marked with `[shared]` are candidates for the `my-ui-repo`
-> package to be shared between repos via git submodules.
+> **Version**: 3.2.0
+> **Last updated**: 2026-04-06
+> **Mode**: Light mode only
 
 ---
 
-## 1. App Header Bar `[shared]`
+## 1. Shared Components
 
-The top bar is the primary shared navigation element across all tools. It
-provides branding, authentication status, and the lock/edit toggle in a
-consistent location.
+All shared components live in `my-ui-repo/components/`.
 
-### Layout
+### AppNavbar (NEW — replaces AppHeader)
+
+Fixed top navigation bar. Matches the digio-website gold standard.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  [Logo] App Name          [Date Nav?]    [Lock] [User] [≡] │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│ [≡] [D̄] Digio.  TOOLS  >  [icon] Tool     [Actions] [Lock] [User] [→] │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
-Three-column grid: `grid-cols-[1fr_auto_1fr]`
+- Position: `fixed top-0 left-0 right-0 h-14 z-40`
+- Background: glassmorphism (`bg-white/70 backdrop-blur-xl border-b border-slate-200/50`)
+- Left: Mobile toggle (`PanelLeft`, `lg:hidden`) → Animated Digio logo SVG (geometric D with electrical transient, Framer Motion) → "Digio." branding (`text-lg font-display font-bold`) → "TOOLS" label (`text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-slate-400`)
+- Right: Custom action buttons → `LockButton` → User email badge (indigo-500 avatar) → Sign out button (`LogOut` icon)
 
-### Reference Implementation
+**Logo**: The Digio logo is an inline SVG (geometric D outline with an animated electrical transient waveform inside), not a plain text letter. It uses `motion.path` from Framer Motion to animate the waveform on loop. See `Logo.jsx` in digio-website for the canonical implementation.
 
+**"TOOLS" label**: Uses `font-medium` (not `font-bold`). Do NOT use the `.section-label` utility here — it includes `font-bold` which is too heavy next to the Digio branding. Spell out the classes explicitly: `text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-slate-400`.
+
+**Breadcrumb pattern** (for tool-specific apps): After "TOOLS", add a chevron separator and tool identity:
 ```tsx
-// AppHeader.tsx [shared]
-import { Lock, Unlock, Menu, User } from "lucide-react";
-
-interface AppHeaderProps {
-  appName: string;
-  logoSlot?: React.ReactNode;      // App logo or letter icon
-  centerSlot?: React.ReactNode;    // Date navigator, search, etc.
-  isLocked?: boolean;
-  onToggleLock?: () => void;
-  userEmail?: string;
-  onMenuClick?: () => void;
-}
-
-export function AppHeader({
-  appName, logoSlot, centerSlot,
-  isLocked, onToggleLock, userEmail, onMenuClick
-}: AppHeaderProps) {
-  return (
-    <header className="border-b bg-card px-3 md:px-6 py-2 grid grid-cols-[1fr_auto_1fr] items-center sticky top-0 z-50 shadow-sm gap-2 md:gap-4">
-      {/* Left: Logo + App Name */}
-      <div className="flex items-center gap-2 md:gap-3 min-w-0">
-        {logoSlot ?? (
-          <div className="w-8 h-8 md:w-9 md:h-9 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold text-sm md:text-base flex-shrink-0">
-            {appName[0]}
-          </div>
-        )}
-        <h1 className="hidden sm:block text-sm md:text-base font-semibold tracking-tight truncate">
-          {appName}
-        </h1>
-      </div>
-
-      {/* Center: Optional (date nav, etc.) */}
-      <div className="flex items-center justify-center">
-        {centerSlot}
-      </div>
-
-      {/* Right: Lock + User + Menu */}
-      <div className="flex items-center gap-1.5 md:gap-2 justify-end min-w-0">
-        {onToggleLock && (
-          <LockButton isLocked={isLocked} onToggle={onToggleLock} />
-        )}
-        {userEmail && (
-          <span className="hidden md:block text-xs text-muted-foreground truncate max-w-[180px] font-sans">
-            {userEmail}
-          </span>
-        )}
-        {onMenuClick && (
-          <button
-            onClick={onMenuClick}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-          >
-            <Menu className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-    </header>
-  );
-}
-```
-
-### Responsive Behaviour
-
-| Element | Mobile (<768px) | Desktop (>=768px) |
-|---------|----------------|-------------------|
-| Logo icon | 32x32px | 36x36px |
-| App name | Hidden | Visible, truncated |
-| Lock button | Icon only | Icon + label text |
-| User email | Hidden | Visible, truncated |
-| Burger menu | Always visible | Always visible |
-| Padding | `px-3 py-2` | `px-6 py-2` |
-
----
-
-## 2. Lock/Edit Toggle `[shared]`
-
-The lock button provides a consistent editing toggle across all tools. It
-sits in the header bar beside the user's sign-in status.
-
-### States
-
-| State | Background | Border | Text | Icon | Label |
-|-------|-----------|--------|------|------|-------|
-| **Locked** | `bg-amber-100` | `border-amber-300` | `text-amber-800` | `Lock` | "Locked" |
-| **Editing** | `bg-green-600` | `border-green-700` | `text-white` | `Unlock` | "Editing" |
-| **Validating** | `bg-amber-100` | `border-amber-300` | `text-amber-800` | Spinner | "Checking..." |
-
-### Reference Implementation
-
-```tsx
-// LockButton.tsx [shared]
-import { Lock, Unlock } from "lucide-react";
-
-interface LockButtonProps {
-  isLocked?: boolean;
-  isValidating?: boolean;
-  onToggle: () => void;
-}
-
-export function LockButton({ isLocked = true, isValidating, onToggle }: LockButtonProps) {
-  return (
-    <button
-      onClick={onToggle}
-      disabled={isValidating}
-      className={cn(
-        "h-7 md:h-8 px-2 md:px-3 rounded-lg text-[11px] font-medium border shadow-sm",
-        "transition-colors active:scale-95 flex items-center gap-1 md:gap-1.5 flex-shrink-0",
-        isLocked
-          ? "bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200"
-          : "bg-green-600 border-green-700 text-white hover:bg-green-700"
-      )}
-    >
-      {isValidating ? (
-        <div className="w-3.5 h-3.5 border-2 border-amber-800/30 border-t-amber-800 rounded-full animate-spin" />
-      ) : isLocked ? (
-        <Lock className="w-3.5 h-3.5" />
-      ) : (
-        <Unlock className="w-3.5 h-3.5" />
-      )}
-      <span className="hidden md:inline">
-        {isValidating ? "Checking..." : isLocked ? "Locked" : "Editing"}
-      </span>
-    </button>
-  );
-}
-```
-
-### Read-Only Warning Bar
-
-When the app is locked, display a non-interactive warning bar at the bottom
-of the viewport.
-
-```tsx
-// ReadOnlyBar.tsx [shared]
-import { Lock } from "lucide-react";
-
-export function ReadOnlyBar({ visible }: { visible: boolean }) {
-  if (!visible) return null;
-  return (
-    <div
-      className="fixed bottom-0 left-0 w-full z-[1000] bg-amber-100/90 backdrop-blur-sm border-t border-amber-300 px-4 py-1.5 text-center text-xs text-amber-800"
-      style={{ pointerEvents: "none" }}
-    >
-      <Lock className="w-3 h-3 inline mr-1" />
-      View Only Mode — Click the lock button to enable editing
-    </div>
-  );
-}
-```
-
----
-
-## 3. Date Navigator `[shared]`
-
-A shared navigation control for stepping through dates. Used in roster
-(week view), map (day/plan view), and potentially receipts (date filtering).
-
-### Layout
-
-```
-┌───────────────────────────────────────────┐
-│  [«] │ [‹] │ [Today] │ [›] │ [»]        │
-└───────────────────────────────────────────┘
-```
-
-Outlined button group with dividers. Double arrows (jump period) hidden on
-mobile.
-
-### Reference Implementation
-
-```tsx
-// DateNavigator.tsx [shared]
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-
-interface DateNavigatorProps {
-  label: string;              // e.g. "Mon 31 Mar" or "Week 14"
-  isToday?: boolean;          // Highlight label in primary colour
-  onPrev: () => void;
-  onNext: () => void;
-  onPrevPeriod?: () => void;  // Jump (hidden on mobile if undefined)
-  onNextPeriod?: () => void;
-  onToday: () => void;
-}
-
-export function DateNavigator({
-  label, isToday, onPrev, onNext, onPrevPeriod, onNextPeriod, onToday
-}: DateNavigatorProps) {
-  return (
-    <div className="flex items-center border rounded-lg bg-background shadow-sm">
-      {onPrevPeriod && (
-        <>
-          <NavButton onClick={onPrevPeriod} className="hidden md:flex">
-            <ChevronsLeft className="w-4 h-4" />
-          </NavButton>
-          <Divider className="hidden md:block" />
-        </>
-      )}
-      <NavButton onClick={onPrev}>
-        <ChevronLeft className="w-4 h-4" />
-      </NavButton>
-      <Divider />
-      <button
-        onClick={onToday}
-        className="h-8 px-3 text-xs font-medium hover:bg-muted/50 transition-colors"
-      >
-        <span className={isToday ? "text-primary font-semibold" : ""}>
-          {label}
-        </span>
-      </button>
-      <Divider />
-      <NavButton onClick={onNext}>
-        <ChevronRight className="w-4 h-4" />
-      </NavButton>
-      {onNextPeriod && (
-        <>
-          <Divider className="hidden md:block" />
-          <NavButton onClick={onNextPeriod} className="hidden md:flex">
-            <ChevronsRight className="w-4 h-4" />
-          </NavButton>
-        </>
-      )}
-    </div>
-  );
-}
-
-function NavButton({ onClick, className, children }: {
-  onClick: () => void; className?: string; children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "h-8 w-8 flex items-center justify-center hover:bg-muted/50 rounded-md transition-colors",
-        className
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
-function Divider({ className }: { className?: string }) {
-  return <div className={cn("w-px h-4 bg-border", className)} />;
-}
-```
-
-### Today Highlight
-
-When viewing today's date, the label text uses `text-primary font-semibold`.
-On the kereone-map, a small "Today" sub-label appears below in
-`text-[10px] text-primary font-medium`.
-
----
-
-## 4. Cards
-
-Cards are the most common UI pattern across all apps. All tools should use
-the same base card style.
-
-### Standard Card
-
-Derived from the kereone-map farm hub cards — the agreed-upon standard.
-
-```tsx
-// Card base pattern
-<div className="bg-card rounded-xl border border-border p-5 sm:p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 group">
-  {/* Card content */}
+<ChevronRight size={14} className="text-slate-300 shrink-0" />
+<div className="flex items-center gap-2">
+  <Receipt size={14} className="text-[#f472b6] shrink-0" />
+  <span className="text-sm font-medium text-slate-900">Receipts</span>
 </div>
 ```
 
-| Property | Value | Notes |
-|----------|-------|-------|
-| Background | `bg-card` (white) | Consistent across themes |
-| Border radius | `rounded-xl` (12px) | Standard for all cards |
-| Border | `border border-border` | Subtle gray outline |
-| Padding | `p-5 sm:p-6` | 20px mobile, 24px desktop |
-| Hover shadow | `hover:shadow-lg` | Elevation on interaction |
-| Hover lift | `hover:-translate-y-0.5` | 2px upward shift |
-| Transition | `transition-all duration-150` | Micro tier (150ms) |
+Props:
+| Prop | Type | Description |
+|------|------|-------------|
+| `toolLabel` | `string` | Label shown after "Digio." (e.g. "Receipts", "TOOLS") |
+| `onMenuToggle` | `() => void` | Mobile sidebar toggle handler |
+| `actions` | `ReactNode` | Custom buttons between tool label and lock |
+| `isLocked` / `isValidating` / `onToggleLock` | lock state | Passed to internal LockButton |
+| `userEmail` | `string` | Displayed in user badge |
+| `onSignOut` | `() => void` | Sign out handler |
 
-### Card with Icon Badge
+### AppHeader (LEGACY)
 
-Used for dashboard app cards and feature cards.
+Still exported for backwards compatibility. New apps should use `AppNavbar` instead. The key difference: AppHeader uses a 3-column grid with `sticky` positioning, while AppNavbar uses a simple flex with `fixed` positioning matching the website.
 
-```tsx
-<div className="bg-card rounded-xl border border-border p-5 sm:p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 group">
-  <div className="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/15 transition-colors duration-150 flex items-center justify-center mb-4">
-    <Icon className="h-5 w-5 text-primary" />
-  </div>
-  <h3 className="font-semibold tracking-tight flex items-center gap-1">
-    Card Title
-    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-  </h3>
-  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-    Card description text here.
-  </p>
-</div>
-```
+### LockButton
 
-### Info Popup Card
+Lock/edit toggle. Sits in the header beside user info.
 
-Used for contextual information overlays (paddock info, receipt details).
-Fixed position, dismissable.
+| State | Palette | Icon | Label |
+|-------|---------|------|-------|
+| **Locked** | Amber (`bg-amber-100 border-amber-300 text-amber-800`) | `Lock` | "Locked" |
+| **Editing** | Green (`bg-green-600 border-green-700 text-white`) | `Unlock` | "Editing" |
+| **Validating** | Amber | Spinner | "Checking..." |
 
-```tsx
-<div className="fixed bottom-20 sm:bottom-4 right-4 w-72 bg-card rounded-xl shadow-lg border border-border p-4 z-50">
-  {/* Header */}
-  <div className="flex items-center gap-2">
-    <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded">
-      [CODE]
-    </span>
-    <span className="font-semibold text-base">Item Name</span>
-  </div>
-  {/* Content */}
-  <div className="mt-2 space-y-1.5 text-sm">
-    {/* Key-value rows */}
-  </div>
-</div>
-```
+### SidebarShell (NEW)
 
-### Empty State / Unassigned Card
+Fixed sidebar container with collapse animation, mobile overlay, and toggle button.
 
-Dashed outline indicating where content can be assigned.
+- Position: `fixed top-14 left-0 bottom-0 z-50`
+- Background: glassmorphism
+- Width: `w-72` (expanded) → `w-[64px]` (collapsed)
+- Animation: `transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]`
+- Mobile: `-translate-x-full` when closed, overlay with `bg-slate-900/30 backdrop-blur-sm`
+- Bottom: PanelLeft/PanelLeftClose collapse toggle (desktop), Close button (mobile)
+
+Props:
+| Prop | Type | Description |
+|------|------|-------------|
+| `open` | `boolean` | Whether sidebar is visible on mobile |
+| `collapsed` | `boolean` | Whether sidebar shows icons only |
+| `onClose` | `() => void` | Close handler (mobile) |
+| `onToggleCollapse` | `() => void` | Collapse toggle handler |
+| `children` | `ReactNode` | Sidebar content (nav items, settings) |
+| `footer` | `ReactNode` | Optional content above collapse toggle |
+
+#### Nav Item Helper Functions
 
 ```tsx
-<div className="border border-dashed border-border rounded-lg h-7 flex items-center justify-center text-[10px] text-muted-foreground/40 hover:text-primary hover:border-primary/30 transition-colors">
-  Not assigned
-</div>
-```
+import { sidebarNavItemClasses, sidebarNavIconClasses, sidebarNavLabelClasses } from "../shared-ui/components";
 
----
-
-## 5. Buttons
-
-### Variants
-
-| Variant | Classes | Usage |
-|---------|---------|-------|
-| **Primary** | `bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm` | Main actions |
-| **Secondary** | `bg-secondary text-secondary-foreground hover:bg-secondary/80` | Secondary actions |
-| **Outline** | `border border-border bg-background hover:bg-muted` | Tertiary actions |
-| **Ghost** | `hover:bg-muted text-foreground` | Subtle actions, nav items |
-| **Destructive** | `bg-destructive text-destructive-foreground hover:bg-destructive/90` | Delete, danger |
-
-### Base Styles (all variants)
-
-```css
-rounded-lg text-sm font-medium transition-colors active:scale-95
-h-9 px-4          /* default */
-h-8 px-3 text-xs  /* sm */
-h-7 px-2 text-xs  /* xs */
-w-8 h-8           /* icon */
-```
-
-### Press Feedback
-
-All buttons use `active:scale-95` for tactile press feedback. This is
-lightweight and works well on both desktop and mobile.
-
----
-
-## 6. Icon System
-
-### Library
-
-**Lucide React** — used consistently across all apps.
-
-### Icon Sizing
-
-| Context | Size | Tailwind |
-|---------|------|----------|
-| Navigation | 20px | `w-5 h-5` |
-| Buttons | 16px | `w-4 h-4` |
-| Inline text | 14px | `w-3.5 h-3.5` |
-| Small badges | 12px | `w-3 h-3` |
-| Map badges (SVG) | 6.5px | Via SVG `fontSize` |
-
-### Icon Badges
-
-```css
-/* Standard icon badge — used in cards and features */
-.icon-badge {
-  @apply w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground;
-}
-
-/* Small icon badge — lighter background */
-.icon-badge-sm {
-  @apply w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center text-primary;
-}
-```
-
-### AM/PM Indicators (kereone-map specific)
-
-```tsx
-<Sun className="h-3.5 w-3.5 text-amber-500" />   {/* AM */}
-<Moon className="h-3.5 w-3.5 text-indigo-400" />  {/* PM */}
-```
-
----
-
-## 7. Burger Menu
-
-The burger menu uses the standard Radix UI `DropdownMenu` with consistent
-animation (see [ANIMATIONS.md](./ANIMATIONS.md)).
-
-### Trigger Button
-
-```tsx
-<button className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors">
-  <Menu className="w-4 h-4" />
+<button className={sidebarNavItemClasses(collapsed, isActive, isDisabled)}>
+  <span className={sidebarNavIconClasses(collapsed)}>
+    <MyIcon size={16} />
+  </span>
+  <span className={sidebarNavLabelClasses(collapsed)}>
+    Label
+  </span>
 </button>
 ```
 
-### Menu Content
+### DateNavigator
 
-```tsx
-<DropdownMenuContent align="end" className="w-52">
-  {/* Items */}
-</DropdownMenuContent>
+Date stepping control with chevron arrows and a "Today" button. When viewing today, the label receives a cyan highlight (`text-cyan-500 font-semibold`).
+
+```
+[‹]  [Today: Mon 6 Apr]  [›]
 ```
 
-The `Menu` icon from Lucide React is the standard burger icon across all apps.
+### Card
+
+Three variants:
+
+| Variant | Classes | Use case |
+|---------|---------|----------|
+| **Default** | `card-standard` + `hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200` | Interactive cards |
+| **Static** | `card-standard` (no hover) | Display-only cards |
+| **Dashed** | `border border-dashed border-slate-200 rounded-lg` | Empty / unassigned state |
+
+### ReadOnlyBar
+
+Bottom-of-viewport warning bar displayed when the app is locked.
+
+- Position: `fixed bottom-0 left-0 w-full`
+- Style: `bg-amber-100/90 backdrop-blur-sm border-t border-amber-300 text-amber-800 text-xs`
+- Icon: `Lock` (Lucide) inline before text
+- Non-interactive (`pointer-events: none`)
+
+### IconBadge
+
+Icon container with two sizes:
+
+| Size | Dimensions | Classes |
+|------|------------|---------|
+| Default | 48x48 | `w-12 h-12 rounded-xl` |
+| Small | 40x40 | `w-10 h-10 rounded-lg` |
+
+### ModalOverlay
+
+Full-screen modal for actions requiring full attention.
+
+> **Warning**: Never render ModalOverlay inside a sidebar or any element with CSS transforms. Always render at the root level of your app.
+
+- Overlay: `fixed inset-0 z-50 bg-black/80`
+- Content: `rounded-[40px]` (uses `card-bento` radius)
+- Dismissal: Escape key closes modal
+- Body scroll lock enabled while open
 
 ---
 
-## 8. Modal Overlay (Full-Attention Actions)
+## 2. Button System
 
-For actions that require the user's full attention — export dialogs, API key
-entry, autofill confirmation, destructive confirmations.
+All buttons are pill-shaped with high-contrast styling.
 
-### Overlay
+### Action Buttons
 
-```tsx
-<div className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-```
+| Class | Classes |
+|-------|---------|
+| `.btn-primary` | `bg-slate-900 text-white hover:bg-black rounded-full px-6 py-2.5 duration-300 active:scale-[0.98]` |
+| `.btn-secondary` | `bg-slate-100 text-slate-900 hover:bg-slate-200 rounded-full` |
+| `.btn-outline` | `border border-slate-200 bg-transparent hover:bg-slate-50 rounded-full` |
+| `.btn-ghost` | `bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full` |
 
-### Modal Content
+### Status Buttons
 
-```tsx
-<div className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-card rounded-xl border border-border p-6 shadow-xl">
-  {/* Header, content, footer */}
-</div>
-```
+| Class | Style |
+|-------|-------|
+| `.btn-status-locked` | Amber palette, `rounded-xl`, `duration-200` |
+| `.btn-status-unlocked` | Green palette, `rounded-xl`, `duration-200` |
 
-Use `AlertDialog` from shadcn/ui for destructive confirmations. Use `Dialog`
-for non-destructive modals.
+### Icon Buttons
 
----
-
-## 9. Toast Notifications
-
-Info popup cards (bottom-right) using Sonner or shadcn/ui toast.
-
-### Positioning
-
-- **Desktop**: Fixed bottom-right, `max-w-[420px]`
-- **Mobile**: Fixed top, full width
-
-### Usage
-
-- Success: Green left border or icon
-- Error: Red left border or icon
-- Info: Primary colour border or icon
-- Duration: 4 seconds default, 8 seconds for errors
+| Class | Style |
+|-------|-------|
+| `.btn-icon-dark` | White bg, dark border, `rounded-xl`, `p-2` |
+| `.btn-icon-standard` | White bg, slate border, `rounded-xl`, `p-2` |
 
 ---
 
-## 10. Forms & Inputs
+## 3. Form Inputs
 
-### Input Base
-
-```tsx
-<input className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
-```
-
-### Focus Ring
-
-All interactive elements use `focus:ring-2 focus:ring-primary/30` for
-consistent focus indication. The ring colour inherits from the app's theme
-(mint for digio, teal for kereone).
+| Class | Shape | Focus |
+|-------|-------|-------|
+| `.input-field` | `rounded-full` (pill) | `border border-slate-200 focus:ring-2 focus:ring-slate-400/50` |
+| `.input-textarea` | `rounded-2xl` (not pill) | Same focus treatment as `.input-field` |
 
 ---
 
-## 11. Tables
+## 4. Card Radius System
 
-Tables should use a clean, minimal style with clear row separation.
-
-### Guidelines
-
-- Use `border border-border rounded-lg overflow-hidden` on the table container
-- Header rows: `bg-muted/30` with `font-mono text-xs uppercase tracking-widest text-muted-foreground`
-- Data rows: `h-10 md:h-11 border-b` with `hover:bg-muted/20 transition-colors`
-- Use sticky left column with shadow for horizontal scroll tables
-- Weekend/holiday shading: Use distinct background colours + text indicators (not just shading alone)
-- Today column: `bg-blue-50/30` with `border-b-2 border-blue-400` on header
-
-### Row State Colours
-
-| State | Background | Border | Text |
-|-------|-----------|--------|------|
-| Default | `bg-card` | `border-b` | `text-foreground` |
-| Hover | `bg-muted/20` | — | — |
-| Weekend | `bg-gray-50` | — | — |
-| Holiday | `bg-red-50/70` | — | `text-red-800` (with label) |
-| Today | `bg-blue-50/30` | `border-b-2 border-blue-400` | `text-blue-600` |
-| Selected | `bg-amber-50/80` | `ring-1 ring-amber-300` | `text-amber-800` |
-
-> **Note on shading**: Colour shading alone is insufficient to communicate
-> meaning (weekends, holidays). Always pair shading with a text label,
-> icon, or border treatment for accessibility.
+| Class | Radius | Use case |
+|-------|--------|----------|
+| `.card-bento` | `rounded-[40px]` | Large feature cards, hero cards, modals |
+| `.card-standard` | `rounded-[32px]` | Project cards, info cards, form cards |
 
 ---
 
-## 12. `my-ui-repo` Shared Component Candidates
+## 5. Glassmorphism
 
-The following components should be extracted into the `my-ui-repo` package
-for sharing via git submodules:
-
-| Component | File | Priority | Notes |
-|-----------|------|----------|-------|
-| `AppHeader` | `AppHeader.tsx` | High | Top bar with logo, lock, user, menu |
-| `LockButton` | `LockButton.tsx` | High | Lock/edit toggle |
-| `ReadOnlyBar` | `ReadOnlyBar.tsx` | High | Bottom warning bar |
-| `DateNavigator` | `DateNavigator.tsx` | High | Date stepping with period jumps |
-| `Card` | `Card.tsx` | Medium | Standard card with hover lift |
-| `IconBadge` | `IconBadge.tsx` | Medium | Icon container (standard + small) |
-| `ModalOverlay` | `ModalOverlay.tsx` | Medium | Full-attention overlay pattern |
-| CSS utilities | `digio-base.css` | High | `.section-label`, `.meta-label`, `.body-text`, `.mono-data` |
-| Theme variables | `theme-digio.css` | High | CSS variables for digio theme |
-| Theme variables | `theme-kereone.css` | High | CSS variables for kereone theme |
-| Font preload | `fonts.html` | Medium | Google Fonts snippet |
-
-### Submodule Usage
-
-```bash
-# Add to any app repo
-git submodule add https://github.com/digbycampbell/my-ui-repo.git shared-ui
-
-# Import CSS
-@import "../shared-ui/css/theme-digio.css";
-@import "../shared-ui/css/digio-base.css";
-
-# Import components
-import { AppHeader, LockButton, DateNavigator } from "../shared-ui/components";
+```css
+.glass {
+  @apply bg-white/70 backdrop-blur-xl border border-slate-200/50 shadow-sm;
+}
 ```
+
+Used on the AppNavbar, SidebarShell, and any floating surface that sits over content.
+
+---
+
+## 6. Table Pattern
+
+| Element | Classes |
+|---------|---------|
+| Header row | `bg-slate-50 border-b border-slate-100` |
+| Header cells | `section-label text-slate-400` |
+| Row hover | `hover:bg-slate-50/50 transition-colors duration-200` |
+| Data cells | `text-sm`; monetary amounts use `mono-data` |
+
+---
+
+## 7. Icon System
+
+**Library**: Lucide React exclusively.
+
+| Context | Size | strokeWidth |
+|---------|------|-------------|
+| Inline | 16px (`w-4 h-4`) | 2 (default) |
+| Buttons | 18px (`w-[18px] h-[18px]`) | 2 |
+| Features | 24px (`w-6 h-6`) | 2 |
+| Bold variant | any | 2.5 |
+
+---
+
+## 8. Sidebar Pattern
+
+Use the `SidebarShell` component (see Section 1) for all sidebar implementations. It provides collapse animation, mobile overlay, and the toggle button out of the box, matching the digio-website gold standard.
+
+For nav item styling, use the exported helper functions `sidebarNavItemClasses`, `sidebarNavIconClasses`, and `sidebarNavLabelClasses` rather than hand-rolling class strings.
+
+| Property | Value |
+|----------|-------|
+| Nav item height | `h-10` |
+| Nav item shape | `rounded-full` |
+| Active nav item | `bg-slate-900 text-white shadow-lg` |
+| Settings position | Bottom of sidebar, above collapse toggle |
+| Section labels | None -- use whitespace between groups |

@@ -1,274 +1,122 @@
 # Digio Animation & Transition Standards
 
-> **Version**: 2.0.0
-> **Last updated**: 2026-04-02
+> **Version**: 3.1.0
+> **Last updated**: 2026-04-06
 
 ---
 
-## 1. Transition Tiers
+## 1. Two-Tier Transition System
 
-All animations in the Digio ecosystem follow a 3-tier system. Use the
-appropriate tier based on the type of interaction.
+All animations follow a two-tier system. Pick the tier that matches the interaction scope.
 
-| Tier | Name | Duration | Easing | Usage |
-|------|------|----------|--------|-------|
-| **T1** | Micro | `150ms` | `ease` | Hover states, focus rings, colour changes, opacity toggles |
-| **T2** | Standard | `250ms` | `ease-out` | Panels opening, cards sliding, menus appearing, date navigation |
-| **T3** | Page | `400ms` | `ease-out` | Route transitions, large reveals, first-load animations |
+| Tier | Duration | Tailwind Class | Use |
+|------|----------|----------------|-----|
+| **Fast** (micro) | 200ms | `duration-200` | Button hover/press, icon hover, color changes, micro-interactions |
+| **Slow** (layout) | 500ms | `duration-500` | Sidebar collapse, page transitions, layout shifts, card hover elevation |
 
-### Tailwind Utility Classes
+### Entry Animation Easing
 
-```css
-/* T1 — Micro */
-.transition-micro { @apply transition-all duration-150 ease-in-out; }
+Use the Apple-inspired cubic bezier for all entry animations:
 
-/* T2 — Standard */
-.transition-standard { @apply transition-all duration-250 ease-out; }
-
-/* T3 — Page */
-.transition-page { @apply transition-all duration-400 ease-out; }
-```
-
-> **Note**: `duration-250` and `duration-400` are not default Tailwind values.
-> Add them to your Tailwind config or use inline `style={{ transitionDuration: '250ms' }}`.
-> Alternatively, use `duration-200` and `duration-500` as close approximations.
+- **Framer Motion**: `ease: [0.16, 1, 0.3, 1]`
+- **CSS / Tailwind**: `ease-[cubic-bezier(0.16,1,0.3,1)]`
 
 ---
 
-## 2. Marketing Site vs Tools
+## 2. Marketing vs Tool Apps
 
-| Animation Type | Marketing Site | Tools Apps |
-|---------------|---------------|------------|
-| Page route transitions (fade + slide) | Yes (Framer Motion) | **No** |
-| Scroll-triggered entry (`whileInView`) | Yes (Framer Motion) | **No** |
-| Staggered card entry delays | Yes (`delay: index * 0.05`) | **No** |
-| Float animation (decorative) | Yes (`6s ease-in-out infinite`) | **No** |
-| Card hover lift + shadow | Yes | **Yes** |
-| Menu open/close (zoom + fade) | Yes | **Yes** |
-| Button press feedback (`active:scale-95`) | Yes | **Yes** |
-| Toast slide-in | Yes | **Yes** |
-| Modal overlay fade | Yes | **Yes** |
-| Date navigation card slide | N/A | **Yes** |
-| Lock button colour transition | N/A | **Yes** |
+| Capability | Marketing Pages | Tool Apps |
+|------------|----------------|-----------|
+| Scroll-triggered entry (`whileInView`) | Yes | **No** |
+| Stagger effects | Yes | **No** |
+| Card hover elevation | Yes | Yes |
+| Button press feedback | Yes | Yes |
+| Micro-interactions (color, icon) | Yes | Yes |
+| Modal overlay | Yes | Yes |
 
-**Rationale**: Tools are task-focused — users interact with them repeatedly
-and page transitions become friction. Keep micro-interactions (which provide
-feedback) but remove cinematic animations (which add load time).
+**Rule of thumb**: Marketing pages use scroll-triggered and stagger animations to create visual interest. Tool apps skip those entirely and rely on micro-interactions for feedback.
 
 ---
 
-## 3. Shared Animations (All Apps)
+## 3. Specific Patterns
 
 ### Card Hover
 
-**Tier**: T1 (Micro)
-
 ```tsx
-<div className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150">
+<div className="hover:shadow-md transition-all duration-500">
 ```
 
-The card lifts 2px and gains a shadow on hover. Uses `group` class for
-child elements that react to the card hover (e.g. chevron appearing).
+Shadow elevation on hover. Use `group` for child elements that react to the card hover.
+
+### Image Zoom (inside card)
+
+```tsx
+<img className="group-hover:scale-105 transition-transform duration-500" />
+```
 
 ### Button Press
 
-**Tier**: T1 (Micro)
-
 ```tsx
-<button className="transition-colors active:scale-95">
+<button className="transition-colors duration-200 active:scale-[0.98]">
 ```
 
-Scales to 95% on press, returns immediately on release. Lightweight tactile
-feedback.
-
-### Menu Open/Close (Radix UI)
-
-**Tier**: T2 (Standard)
+### Sidebar Collapse
 
 ```tsx
-className={cn(
-  "data-[state=open]:animate-in data-[state=closed]:animate-out",
-  "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-  "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-  "data-[side=bottom]:slide-in-from-top-2",
-  "data-[side=left]:slide-in-from-right-2",
-  "data-[side=right]:slide-in-from-left-2",
-  "data-[side=top]:slide-in-from-bottom-2"
-)}
+<aside className="transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
 ```
 
-This is the standard shadcn/ui dropdown animation. All apps using Radix UI
-get this for free. Duration is controlled by `tw-animate-css` defaults (~200ms).
+Text inside the sidebar fades with the collapse:
+
+```tsx
+<span className="transition-all duration-500 opacity-0 group-[.expanded]:opacity-100">
+```
 
 ### Modal Overlay
 
-**Tier**: T2 (Standard)
-
 ```tsx
-{/* Backdrop */}
-<div className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-
-{/* Content */}
-<div className="fixed left-1/2 top-1/2 z-50 ... duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95" />
+<div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm" />
 ```
 
-Overlay fades in, content zooms from 95%. Used for export dialogs, settings,
-destructive confirmations, and any full-attention action.
-
-### Toast Notifications
-
-**Tier**: T2 (Standard)
-
-Toasts slide in from the bottom-right (desktop) or top (mobile). Duration
-is handled by the toast library (Sonner). No custom animation needed.
-
-### Focus Ring
-
-**Tier**: T1 (Micro)
+### Framer Motion Entry
 
 ```tsx
-className="transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ ease: [0.16, 1, 0.3, 1] }}
+/>
 ```
 
-Smooth ring appearance on focus. Uses the theme's primary colour at 30%
-opacity.
-
----
-
-## 4. Date Navigation Card Slide
-
-When the date navigator steps forward or backward, content cards should
-slide in the direction of travel. This is a lightweight CSS transition, not
-a Framer Motion animation.
-
-**Tier**: T2 (Standard)
-
-### Implementation
+### Scroll-Triggered (marketing pages only)
 
 ```tsx
-// Track slide direction
-const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
-
-function goNext() {
-  setSlideDirection('left');
-  setDate(addDays(date, 1));
-}
-
-function goPrev() {
-  setSlideDirection('right');
-  setDate(subDays(date, 1));
-}
-
-// Apply to card container
-<div
-  className="transition-transform duration-200 ease-out"
-  style={{
-    transform: slideDirection === 'left'
-      ? 'translateX(-8px)' : slideDirection === 'right'
-      ? 'translateX(8px)' : 'translateX(0)'
-  }}
-  onTransitionEnd={() => setSlideDirection(null)}
->
-  {/* Date-dependent content */}
-</div>
-```
-
-The cards shift 8px in the travel direction and snap back, giving a subtle
-sense of movement without heavy animation. The `onTransitionEnd` callback
-resets the transform.
-
-### Alternative: CSS `@starting-style` (modern browsers)
-
-For a more elegant approach without state tracking:
-
-```css
-.date-card {
-  transition: opacity 200ms ease-out, transform 200ms ease-out;
-}
-
-.date-card[data-direction="left"] {
-  animation: slide-left 200ms ease-out;
-}
-
-.date-card[data-direction="right"] {
-  animation: slide-right 200ms ease-out;
-}
-
-@keyframes slide-left {
-  from { opacity: 0.8; transform: translateX(12px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slide-right {
-  from { opacity: 0.8; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
-}
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+  transition={{ ease: [0.16, 1, 0.3, 1] }}
+/>
 ```
 
 ---
 
-## 5. Loading States
+## 4. Hover Effects Summary
 
-### Spinner
-
-```tsx
-<div className="w-4 h-4 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
-```
-
-Tailwind's built-in `animate-spin` — continuous rotation. Adapt border
-colour to context (e.g. `border-t-amber-800` inside the lock button).
-
-### Pulse
-
-```tsx
-<div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-```
-
-Tailwind's built-in `animate-pulse` — opacity oscillation. Used for
-"processing" indicators.
+| Element | Effect | Tier |
+|---------|--------|------|
+| Card | Shadow elevation change (`hover:shadow-md`) | Slow |
+| Button | Background color shift + scale (`active:scale-[0.98]`) | Fast |
+| Icon | Color transition | Fast |
+| Nav item | Background + text color change | Fast |
+| Table row | Subtle background change | Fast |
+| Link | Color change to cyan | Fast |
 
 ---
 
-## 6. Selection & Overlay Highlights
+## 5. Reduced Motion
 
-### Selection Overlay (roster/table)
-
-**Tier**: T1 (Micro)
-
-```tsx
-<div className="pointer-events-none absolute z-10 rounded-lg border-2 border-amber-500 bg-amber-100/30 transition-all duration-150 ease-out" />
-```
-
-Smooth position/size transitions as the user drags or extends a selection.
-
-### Paste Preview Overlay
-
-```tsx
-<div className="pointer-events-none absolute z-10 rounded-lg border-2 border-dashed border-blue-400 bg-blue-100/20 transition-all duration-150 ease-out" />
-```
-
-Dashed blue border indicates where content will be pasted.
-
----
-
-## 7. Hover Effects Summary
-
-| Element | Effect | Duration | Tier |
-|---------|--------|----------|------|
-| Card | `shadow-lg` + `-translate-y-0.5` | 150ms | T1 |
-| Card icon | `bg-primary/10` → `bg-primary/15` | 150ms | T1 |
-| Card chevron | `opacity-0` → `opacity-100` | 150ms | T1 |
-| Button | Colour change (`hover:bg-*`) | 150ms | T1 |
-| Nav item | `hover:bg-muted/50` | 150ms | T1 |
-| Table row | `hover:bg-muted/20` | 150ms | T1 |
-| Link | Colour change to primary-dark | 150ms | T1 |
-| Map paddock | Fill + stroke colour change | 150ms | T1 |
-
----
-
-## 8. Reduced Motion
-
-Respect the user's motion preferences:
+Respect the user's motion preferences. Add this to the shared CSS base:
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -281,4 +129,4 @@ Respect the user's motion preferences:
 }
 ```
 
-Add this to the shared CSS base. All apps should respect `prefers-reduced-motion`.
+All apps must respect `prefers-reduced-motion`.
