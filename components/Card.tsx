@@ -1,22 +1,19 @@
 /**
  * Card — Standard card component for the Digio ecosystem.
  *
- * Based on the kereone-map farm hub cards — the agreed standard.
- * Includes hover lift + shadow effect (T1 micro animation).
- *
- * Variants:
- *   - default: hover lift + shadow (interactive cards, dashboard)
- *   - static: no hover effects (info display, form containers)
+ * Uses the reimagined card radius system:
+ *   - default: card-standard (rounded-[32px]) with hover lift + shadow
+ *   - static: card-standard, no hover effects
  *   - dashed: dashed border for empty/unassigned states
  *
  * @example
  * <Card>
- *   <h3 className="font-semibold">Title</h3>
- *   <p className="text-sm text-muted-foreground">Description</p>
+ *   <h3 className="font-display font-bold text-slate-900">Title</h3>
+ *   <p className="body-text">Description</p>
  * </Card>
  *
  * <Card variant="dashed">
- *   <span className="text-[10px] text-muted-foreground/40">Not assigned</span>
+ *   <span className="section-label text-slate-400">Not assigned</span>
  * </Card>
  */
 
@@ -29,18 +26,18 @@ export interface CardProps {
 
 const variantClasses = {
   default: [
-    "bg-card rounded-xl border border-border p-5 sm:p-6",
-    "hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150",
+    "bg-white rounded-[32px] border border-slate-100 p-6 sm:p-8 shadow-sm",
+    "hover:shadow-lg hover:-translate-y-1 transition-all duration-500",
     "group",
   ].join(" "),
 
-  static: "bg-card rounded-xl border border-border p-5 sm:p-6",
+  static: "bg-white rounded-[32px] border border-slate-100 p-6 sm:p-8 shadow-sm",
 
   dashed: [
-    "border border-dashed border-border rounded-lg",
+    "border border-dashed border-slate-200 rounded-[32px]",
     "flex items-center justify-center",
-    "text-[10px] text-muted-foreground/40",
-    "hover:text-primary hover:border-primary/30 transition-colors duration-150",
+    "text-slate-400",
+    "hover:text-cyan-600 hover:border-cyan-600/30 transition-colors duration-200",
   ].join(" "),
 };
 
