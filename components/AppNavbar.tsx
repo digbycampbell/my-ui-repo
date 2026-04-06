@@ -21,6 +21,7 @@
  * />
  */
 
+import { motion } from "framer-motion";
 import { PanelLeft, LogOut } from "lucide-react";
 import { LockButton } from "./LockButton";
 
@@ -72,21 +73,44 @@ export function AppNavbar({
         </button>
       )}
 
-      {/* Left: Digio logo + tool label */}
+      {/* Left: Digio logo + tool label — matches Logo.jsx from digio-website */}
       <div className="flex items-center gap-3 py-1">
-        {/* Geometric "D" SVG — matches Logo.jsx from digio-website */}
-        <svg
-          viewBox="0 0 100 100"
-          className="h-6 w-auto fill-current text-cyan-600 shrink-0"
+        <motion.div
+          className="relative flex items-center justify-center h-6"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
         >
-          <path
-            d="M30,20 L60,20 C80,20 85,35 85,50 C85,65 80,80 60,80 L30,80 Z"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="8"
-            strokeLinejoin="round"
-          />
-        </svg>
+          <svg
+            viewBox="0 0 100 100"
+            className="h-full w-auto fill-current text-cyan-600 transition-colors duration-500"
+          >
+            <path
+              d="M30,20 L60,20 C80,20 85,35 85,50 C85,65 80,80 60,80 L30,80 Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="8"
+              strokeLinejoin="round"
+            />
+            <motion.path
+              d="M30,50 L45,50 L47,30 L50,70 L53,40 L56,60 L60,50 L75,50"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                repeatType: "loop",
+                ease: "easeInOut",
+                repeatDelay: 1,
+              }}
+            />
+          </svg>
+        </motion.div>
         <span className="text-lg font-display font-bold tracking-tight text-slate-900">
           Digio<span className="text-cyan-600">.</span>
         </span>
