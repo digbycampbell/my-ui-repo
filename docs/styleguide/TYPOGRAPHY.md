@@ -1,163 +1,123 @@
-# Digio Typography
+# Digio Typography — The Harmonized Method
 
-> **Version**: 2.0.0
-> **Last updated**: 2026-04-02
+> **Version**: 3.1.0
+> **Last updated**: 2026-04-06
 
 ---
 
 ## 1. Font Stack
 
-All apps in the Digio ecosystem use two font families.
+The Harmonized Method uses a 4-font stack, each assigned to a distinct layer.
 
-### Primary (Body & Display)
-
-**Outfit** — a geometric sans-serif with a modern, clean feel. Used for all
-headings, body text, labels, and UI controls.
-
-Fallback chain: `"Outfit", "Inter", ui-sans-serif, system-ui, sans-serif`
-
-### Monospace (Technical Content)
-
-**JetBrains Mono** — a developer-focused monospace font. Used for amounts,
-dates in compact format, shift codes, paddock labels, zoom percentages,
-section labels, and any data that benefits from fixed-width alignment.
-
-Fallback chain: `"JetBrains Mono", monospace`
+| Layer | Font | Usage | Weights |
+|-------|------|-------|---------|
+| **Display** | Outfit | Headings, hero titles, branding | 400, 500, 600, 700 |
+| **Sans** | Inter | Body text, UI elements, navigation | 400, 500, 600, 700 |
+| **Serif** | Instrument Serif | Editorial accents (sparingly) | 400, 400i |
+| **Mono** | JetBrains Mono | Data, code, metadata labels | 400, 500 |
 
 ---
 
-## 2. Loading Fonts
+## 2. CSS Variables
+
+```css
+--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+--font-display: "Outfit", sans-serif;
+--font-serif: "Instrument Serif", serif;
+--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+```
+
+Map these to Tailwind utilities: `font-sans`, `font-display`, `font-serif`, `font-mono`.
+
+---
+
+## 3. Loading Fonts
 
 ### HTML (recommended — add to `<head>`)
 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Instrument+Serif:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 ```
 
-### CSS (alternative — add to main stylesheet)
+### CSS (alternative)
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Instrument+Serif:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 ```
 
 ---
 
-## 3. CSS Variables
-
-```css
---font-sans: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
---font-mono: "JetBrains Mono", monospace;
-```
-
-These are applied globally via Tailwind's `font-sans` and `font-mono`
-utilities.
-
----
-
-## 4. Type Scale
+## 4. Type Patterns
 
 ### Headings
 
-| Level | Tailwind Classes | Weight | Size | Tracking | Usage |
-|-------|-----------------|--------|------|----------|-------|
-| **h1** | `text-2xl sm:text-4xl font-bold tracking-tight` | 700 | 24px / 36px | -0.025em | Page titles |
-| **h2** | `text-xl sm:text-2xl font-bold tracking-tight` | 700 | 20px / 24px | -0.025em | Section headings |
-| **h3** | `text-lg font-semibold` | 600 | 18px | default | Card headings, dialog titles |
-| **h4** | `text-base font-semibold` | 600 | 16px | default | Sub-section headings |
+| Pattern | Tailwind Classes |
+|---------|-----------------|
+| **Hero title** | `text-6xl md:text-8xl lg:text-9xl font-display font-bold tracking-tight` |
+| **Section header** | `text-3xl md:text-5xl font-display font-bold tracking-tight` |
+| **App heading** | `text-2xl sm:text-3xl font-display font-bold tracking-tight` |
 
-### Body Text
+### Body & Data
 
-| Role | Tailwind Classes | Size | Usage |
-|------|-----------------|------|-------|
-| **Body** | `text-sm leading-relaxed` | 14px | Default paragraph text |
-| **Body large** | `text-base leading-relaxed` | 16px | Feature descriptions, hero text |
-| **Small** | `text-xs` | 12px | Metadata, timestamps, badges |
-| **Tiny** | `text-[10px]` | 10px | Map labels, compact UI only |
-
-### Special Labels
-
-| Role | Tailwind Classes | Font | Usage |
-|------|-----------------|------|-------|
-| **Section label** | `text-xs font-medium tracking-widest uppercase font-mono` | JetBrains Mono | Category headers (e.g. "AI SETTINGS", "EXPERTISE") |
-| **Meta label** | `text-xs font-medium tracking-wider uppercase` | Outfit | Status labels, form field labels |
-| **Mono data** | `font-mono text-sm` | JetBrains Mono | Amounts (`$1,234.56`), codes (`[L3]`), percentages (`125%`) |
+| Pattern | Tailwind Classes |
+|---------|-----------------|
+| **Body text** | `text-sm text-slate-500 leading-relaxed` |
+| **Mono data** | `font-mono text-sm tabular-nums` |
+| **Section label** | `text-[10px] font-mono font-bold uppercase tracking-[0.2em]` |
+| **Metadata** | `font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400` |
 
 ---
 
 ## 5. Font Weights
 
-### Outfit
+### Outfit (Display)
 
-| Weight | CSS Value | Tailwind | Usage |
-|--------|-----------|----------|-------|
-| Light | 300 | `font-light` | Decorative headings (marketing site only) |
-| Regular | 400 | `font-normal` | Body text, descriptions |
-| Medium | 500 | `font-medium` | Labels, nav items, button text |
-| Semibold | 600 | `font-semibold` | Card headings, sub-headers |
-| Bold | 700 | `font-bold` | Page headings, strong emphasis |
+| Weight | CSS | Tailwind | Usage |
+|--------|-----|----------|-------|
+| 400 | `font-weight: 400` | `font-normal` | Soft display text |
+| 500 | `font-weight: 500` | `font-medium` | Secondary headings |
+| 600 | `font-weight: 600` | `font-semibold` | Card headings |
+| 700 | `font-weight: 700` | `font-bold` | Hero titles, page headings |
+
+### Inter (Sans)
+
+| Weight | CSS | Tailwind | Usage |
+|--------|-----|----------|-------|
+| 400 | `font-weight: 400` | `font-normal` | Body text, descriptions |
+| 500 | `font-weight: 500` | `font-medium` | Labels, nav items, buttons |
+| 600 | `font-weight: 600` | `font-semibold` | Emphasized UI text |
+| 700 | `font-weight: 700` | `font-bold` | Strong emphasis |
+
+### Instrument Serif
+
+| Weight | CSS | Tailwind | Usage |
+|--------|-----|----------|-------|
+| 400 | `font-weight: 400` | `font-normal` | Editorial accents |
+| 400i | `font-style: italic` | `italic` | Pull quotes, stylistic emphasis |
 
 ### JetBrains Mono
 
-| Weight | CSS Value | Tailwind | Usage |
-|--------|-----------|----------|-------|
-| Regular | 400 | `font-normal` | Code snippets, data values |
-| Medium | 500 | `font-medium` | Section labels |
-| Semibold | 600 | `font-semibold` | Emphasized mono data |
+| Weight | CSS | Tailwind | Usage |
+|--------|-----|----------|-------|
+| 400 | `font-weight: 400` | `font-normal` | Code, data values |
+| 500 | `font-weight: 500` | `font-medium` | Section labels, metadata |
 
 ---
 
-## 6. Responsive Typography
-
-Use Tailwind responsive prefixes for size adjustments:
-
-```jsx
-{/* Page title — grows on larger screens */}
-<h1 className="text-2xl sm:text-4xl font-bold tracking-tight">
-  Page Title
-</h1>
-
-{/* Card heading — consistent size, hidden on very small screens */}
-<h3 className="text-base sm:text-lg font-semibold tracking-tight">
-  Card Title
-</h3>
-
-{/* Body text — same size everywhere */}
-<p className="text-sm text-muted-foreground leading-relaxed">
-  Description text here.
-</p>
-```
-
-### Mobile Considerations
-
-- Minimum touch-target text: `text-sm` (14px) for interactive elements
-- Minimum readable text: `text-xs` (12px) for non-interactive labels
-- Avoid `text-[9px]` or smaller except inside SVG map labels
-- Truncate long text with `truncate` rather than shrinking font size
-
----
-
-## 7. Shared CSS Utility Classes
-
-All apps should include these in their stylesheet. These are candidates for
-the shared `my-ui-repo` package.
+## 6. Shared CSS Utility Classes
 
 ```css
 @layer components {
-  /* Section label — small mono uppercase (e.g. "AI SETTINGS") */
-  .section-label {
-    @apply text-xs font-medium tracking-widest text-primary uppercase font-mono;
-  }
-
-  /* Metadata label — small uppercase (e.g. "Status", "Date") */
-  .meta-label {
-    @apply text-xs font-medium tracking-wider text-muted-foreground uppercase;
-  }
-
-  /* Body text — readable muted paragraph */
+  /* Body text */
   .body-text {
-    @apply text-sm text-muted-foreground leading-relaxed;
+    @apply text-sm text-slate-500 leading-relaxed;
+  }
+
+  /* Section label — small mono uppercase */
+  .section-label {
+    @apply text-[10px] font-mono font-bold uppercase tracking-[0.2em];
   }
 
   /* Mono data — fixed-width values */
@@ -169,35 +129,62 @@ the shared `my-ui-repo` package.
 
 ---
 
-## 8. Migration Notes
+## 7. Responsive Examples
 
-### Apps currently using Inter only (kereone-roster, digio-receipts)
+```jsx
+{/* Hero title */}
+<h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-bold tracking-tight">
+  Hero Title
+</h1>
 
-Replace the Google Fonts link:
+{/* Section header */}
+<h2 className="text-3xl md:text-5xl font-display font-bold tracking-tight">
+  Section Header
+</h2>
 
-```diff
-- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-+ <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+{/* App heading */}
+<h3 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">
+  App Heading
+</h3>
+
+{/* Body text */}
+<p className="text-sm text-slate-500 leading-relaxed">
+  Description text here.
+</p>
+
+{/* Section label */}
+<span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
+  AI Settings
+</span>
 ```
 
-Update CSS variables:
+---
+
+## 8. Migration from v2.0.0
+
+### Font stack changes
+
+v2.0.0 used Outfit as the sole sans font. v3.1.0 splits responsibilities:
+
+- **Outfit** moves to the `font-display` layer (headings only).
+- **Inter** takes over `font-sans` (body text and UI).
+- **Instrument Serif** is new — use sparingly for editorial accents.
+- **JetBrains Mono** remains for data and code; weight 600 is dropped.
+
+### Update Google Fonts link
 
 ```diff
-- --font-sans: 'Inter', sans-serif;
-+ --font-sans: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
+- <link href="...?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" ...>
++ <link href="...?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Instrument+Serif:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@400;500&display=swap" ...>
 ```
 
-> **Note**: Inter remains in the fallback chain, so the visual change is
-> graceful — Outfit loads and replaces Inter, but if Outfit fails to load
-> the app still looks correct with Inter.
-
-### Apps currently using Space Grotesk (digio-website, kereone-map)
-
-Replace Space Grotesk with JetBrains Mono:
+### Update CSS variables
 
 ```diff
-- --font-mono: "Space Grotesk", monospace;
-+ --font-mono: "JetBrains Mono", monospace;
+- --font-sans: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
+- --font-mono: "JetBrains Mono", monospace;
++ --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
++ --font-display: "Outfit", sans-serif;
++ --font-serif: "Instrument Serif", serif;
++ --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 ```
-
-Update Google Fonts link to include JetBrains Mono instead of Space Grotesk.
