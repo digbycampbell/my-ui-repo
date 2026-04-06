@@ -380,8 +380,10 @@ import { AppNavbar } from "../shared-ui/components";
 ```
 
 - Fixed: `fixed top-0 left-0 right-0 h-14 z-40`
-- Left: Mobile toggle (PanelLeft, `lg:hidden`) → Digio logo (cyan D badge) → "Digio." text → tool label
+- Left: Mobile toggle (PanelLeft, `lg:hidden`) → Animated Digio SVG logo (geometric D with electrical transient) → "Digio." text (`font-display font-bold`) → "TOOLS" label (`font-mono font-medium`, NOT `font-bold`) → optional breadcrumb (`> [icon] ToolName`)
 - Right: Custom actions → LockButton → User badge (indigo avatar + email) → Sign out
+- **Logo**: Inline SVG with Framer Motion `motion.path` animation — NOT a text letter in a circle
+- **"TOOLS" label**: `text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-slate-400` — do NOT use `.section-label` (it's `font-bold`, too heavy here)
 
 ### Sidebar (`SidebarShell` component)
 

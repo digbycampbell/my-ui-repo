@@ -115,7 +115,7 @@ export function AppNavbar({
           Digio<span className="text-cyan-600">.</span>
         </span>
         {toolLabel && (
-          <span className="section-label text-slate-400">{toolLabel}</span>
+          <span className="text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-slate-400">{toolLabel}</span>
         )}
       </div>
 

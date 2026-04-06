@@ -15,15 +15,28 @@ All shared components live in `my-ui-repo/components/`.
 Fixed top navigation bar. Matches the digio-website gold standard.
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│ [≡] [D] Digio.  TOOLS     ...    [Actions] [Lock] [User] [→ Sign out] │
-└──────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│ [≡] [D̄] Digio.  TOOLS  >  [icon] Tool     [Actions] [Lock] [User] [→] │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 - Position: `fixed top-0 left-0 right-0 h-14 z-40`
 - Background: glassmorphism (`bg-white/70 backdrop-blur-xl border-b border-slate-200/50`)
-- Left: Mobile toggle (`PanelLeft`, `lg:hidden`) → Digio logo (cyan-600 D badge) → "Digio." branding → tool label (section-label style)
+- Left: Mobile toggle (`PanelLeft`, `lg:hidden`) → Animated Digio logo SVG (geometric D with electrical transient, Framer Motion) → "Digio." branding (`text-lg font-display font-bold`) → "TOOLS" label (`text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-slate-400`)
 - Right: Custom action buttons → `LockButton` → User email badge (indigo-500 avatar) → Sign out button (`LogOut` icon)
+
+**Logo**: The Digio logo is an inline SVG (geometric D outline with an animated electrical transient waveform inside), not a plain text letter. It uses `motion.path` from Framer Motion to animate the waveform on loop. See `Logo.jsx` in digio-website for the canonical implementation.
+
+**"TOOLS" label**: Uses `font-medium` (not `font-bold`). Do NOT use the `.section-label` utility here — it includes `font-bold` which is too heavy next to the Digio branding. Spell out the classes explicitly: `text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-slate-400`.
+
+**Breadcrumb pattern** (for tool-specific apps): After "TOOLS", add a chevron separator and tool identity:
+```tsx
+<ChevronRight size={14} className="text-slate-300 shrink-0" />
+<div className="flex items-center gap-2">
+  <Receipt size={14} className="text-[#f472b6] shrink-0" />
+  <span className="text-sm font-medium text-slate-900">Receipts</span>
+</div>
+```
 
 Props:
 | Prop | Type | Description |
