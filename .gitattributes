@@ -1,0 +1,3 @@
+# Mark reference apps as non-essential for archives
+examples/ export-ignore
+docs/ export-ignore

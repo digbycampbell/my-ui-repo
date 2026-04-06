@@ -6,7 +6,7 @@
  * Features:
  *   - Single step (chevrons): always visible
  *   - Period jump (double chevrons): hidden on mobile, optional via props
- *   - Today button: label highlights in primary colour when viewing today
+ *   - Today button: label highlights in cyan when viewing today
  *   - Outlined button group with dividers
  *
  * @example
@@ -15,8 +15,6 @@
  *   isToday={true}
  *   onPrev={() => stepDay(-1)}
  *   onNext={() => stepDay(1)}
- *   onPrevPeriod={() => stepWeek(-1)}
- *   onNextPeriod={() => stepWeek(1)}
  *   onToday={() => goToToday()}
  * />
  */
@@ -29,19 +27,12 @@ import {
 } from "lucide-react";
 
 export interface DateNavigatorProps {
-  /** Display label, e.g. "Mon 31 Mar" or "Week 14" */
   label: string;
-  /** When true, label text uses primary colour + semibold */
   isToday?: boolean;
-  /** Step backward by one unit (day, etc.) */
   onPrev: () => void;
-  /** Step forward by one unit */
   onNext: () => void;
-  /** Jump backward by one period (week, etc.). Hidden on mobile if provided. */
   onPrevPeriod?: () => void;
-  /** Jump forward by one period. Hidden on mobile if provided. */
   onNextPeriod?: () => void;
-  /** Jump to today */
   onToday: () => void;
   className?: string;
 }
@@ -59,7 +50,7 @@ export function DateNavigator({
   return (
     <div
       className={[
-        "flex items-center border rounded-lg bg-background shadow-sm",
+        "flex items-center border border-slate-200 rounded-full bg-white shadow-sm",
         className,
       ]
         .filter(Boolean)
@@ -83,14 +74,14 @@ export function DateNavigator({
       <button
         type="button"
         onClick={onToday}
-        className="h-8 px-3 text-xs font-medium hover:bg-muted/50 transition-colors duration-150"
+        className="h-8 px-3 text-xs font-medium hover:bg-slate-100 transition-colors duration-200 rounded-full"
         aria-label="Go to today"
       >
-        <span className={isToday ? "text-primary font-semibold" : ""}>
+        <span className={isToday ? "text-cyan-600 font-semibold" : "text-slate-900"}>
           {label}
         </span>
         {isToday && (
-          <span className="block text-[9px] text-primary font-medium leading-none -mt-0.5">
+          <span className="block text-[9px] text-cyan-600 font-medium leading-none -mt-0.5">
             Today
           </span>
         )}
@@ -114,8 +105,6 @@ export function DateNavigator({
   );
 }
 
-/* ------------------------------------------------------------------ */
-
 function NavButton({
   onClick,
   className = "",
@@ -133,7 +122,7 @@ function NavButton({
       onClick={onClick}
       aria-label={ariaLabel}
       className={[
-        "h-8 w-8 flex items-center justify-center hover:bg-muted/50 rounded-md transition-colors duration-150",
+        "h-8 w-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all duration-200",
         className,
       ]
         .filter(Boolean)
@@ -147,7 +136,7 @@ function NavButton({
 function Divider({ className = "" }: { className?: string }) {
   return (
     <div
-      className={["w-px h-4 bg-border", className].filter(Boolean).join(" ")}
+      className={["w-px h-4 bg-slate-200", className].filter(Boolean).join(" ")}
     />
   );
 }

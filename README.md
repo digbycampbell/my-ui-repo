@@ -1,9 +1,21 @@
-# Digio Shared UI
+# Digio Shared UI — The Reimagined Design System
 
-Shared components, theme CSS, and design system documentation for the Digio ecosystem.
+Shared components, theme CSS, design tokens, and documentation for the Digio ecosystem.
+Based on the Apple-inspired digio-reimagined design language.
 
 > **Repo**: `github.com/digbycampbell/my-ui-repo`
 > **Consumed as**: git submodule (`shared-ui/`) in each app repo
+> **Version**: `3.0.0`
+
+---
+
+## Design Philosophy
+
+- **Minimalism over Decoration**: No unnecessary glows or gradients
+- **High Contrast**: Solid black on white for primary actions
+- **Spacious Layouts**: Generous white space and bento-style grids
+- **Pill-Shaped UI**: All buttons and interactive elements use `rounded-full`
+- **Light Mode Exclusive**: No dark mode
 
 ---
 
@@ -11,36 +23,38 @@ Shared components, theme CSS, and design system documentation for the Digio ecos
 
 ```
 my-ui-repo/
-├── components/
-│   ├── index.ts           # Barrel export
-│   ├── AppHeader.tsx       # Top navigation bar
-│   ├── LockButton.tsx      # Lock/edit toggle
-│   ├── ReadOnlyBar.tsx     # Bottom warning bar (locked state)
-│   ├── DateNavigator.tsx   # Date stepping control
-│   ├── Card.tsx            # Standard card with hover lift
-│   ├── IconBadge.tsx       # Icon container (standard + small)
-│   └── ModalOverlay.tsx    # Full-attention overlay
-├── css/
-│   ├── theme-digio.css     # Digio theme CSS variables
-│   ├── theme-kereone.css   # Kereone theme CSS variables
-│   └── digio-base.css      # Shared utilities + font variables
-├── fonts.html              # Google Fonts preload snippet
-├── docs/
-│   ├── DESIGN-STANDARDS.md # Unified style guide overview
+├── components/           # Shared React components
+│   ├── index.ts          # Barrel export
+│   ├── AppHeader.tsx
+│   ├── LockButton.tsx
+│   ├── ReadOnlyBar.tsx
+│   ├── DateNavigator.tsx
+│   ├── Card.tsx
+│   ├── IconBadge.tsx
+│   └── ModalOverlay.tsx
+├── css/                  # Theme & utility CSS
+│   ├── theme-digio.css   # Brand colors + shadcn/ui variables
+│   ├── theme-kereone.css # Kereone theme variant
+│   └── digio-base.css    # Buttons, glass, typography, inputs
+├── lib/
+│   └── design-system.ts  # BRAND tokens, TOOL_THEMES, types
+├── fonts.html            # Google Fonts preload (4 fonts)
+├── docs/                 # Design documentation
+│   ├── DESIGN-STANDARDS.md
 │   └── styleguide/
-│       ├── COLOURS.md      # Colour system
-│       ├── TYPOGRAPHY.md   # Font stack and type scale
-│       ├── COMPONENTS.md   # Component patterns and specs
-│       ├── ANIMATIONS.md   # Transition tiers
-│       ├── APP-THEMING.md  # New app setup guide
-│       └── KEREONE-THEME.md# Kereone-specific theme
+├── examples/             # Reference implementations
+│   ├── digio-reimagined/ # Full design system showcase
+│   └── digio-receipts/   # Example tool app
+├── package.json
+├── tsconfig.json
+├── .gitattributes
 ├── LICENSE
-└── README.md               # This file
+└── README.md
 ```
 
 ---
 
-## Setup (add as submodule to your app)
+## Setup
 
 ### 1. Add as submodule
 
@@ -50,90 +64,90 @@ git submodule add https://github.com/digbycampbell/my-ui-repo.git shared-ui
 
 ### 2. Import CSS
 
-In your app's `index.css`, import the theme and base utilities:
-
 ```css
-/* Pick ONE theme */
 @import "../shared-ui/css/theme-digio.css";
-/* OR */
-@import "../shared-ui/css/theme-kereone.css";
-
-/* Always import base utilities */
 @import "../shared-ui/css/digio-base.css";
 ```
 
-### 3. Add fonts
+### 3. Add fonts (copy to `<head>` of index.html)
 
-Copy the contents of `fonts.html` into your app's `<head>` tag in
-`index.html`.
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Instrument+Serif:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+```
 
-### 4. Import components
+### 4. Import design tokens
 
 ```tsx
-import {
-  AppHeader,
-  LockButton,
-  ReadOnlyBar,
-  DateNavigator,
-  Card,
-  IconBadge,
-  ModalOverlay,
-} from "../shared-ui/components";
+import { BRAND, TOOL_THEMES } from "../shared-ui/lib/design-system";
 ```
+
+### 5. Import components
+
+```tsx
+import { AppHeader, LockButton, DateNavigator } from "../shared-ui/components";
+```
+
+---
+
+## Typography — The Harmonized Method
+
+| Layer | Font | Usage |
+|:------|:-----|:------|
+| **Display** | Outfit | Headings, hero titles, branding |
+| **Sans** | Inter | Body text, UI elements, navigation |
+| **Serif** | Instrument Serif | Editorial accents (sparingly) |
+| **Mono** | JetBrains Mono | Data, code, metadata labels |
+
+---
+
+## Color Palette
+
+| Color | Hex | Role |
+|-------|-----|------|
+| Primary | `#0f172a` | Slate 950 — structure, headings, buttons |
+| Accent | `#0891b2` | Cyan 600 — highlights, links |
+| Secondary | `#4f46e5` | Indigo 600 — secondary accents |
+| Surface | `#ffffff` | Backgrounds |
+| Border | `#e2e8f0` | Separators |
+
+---
+
+## CSS Classes
+
+| Class | Description |
+|-------|-------------|
+| `.btn-primary` | Solid black pill button |
+| `.btn-secondary` | Light grey pill button |
+| `.btn-outline` | Bordered pill button |
+| `.btn-ghost` | Transparent pill button |
+| `.btn-status-locked` | Amber lock state |
+| `.btn-status-unlocked` | Green editing state |
+| `.btn-icon-dark` | Dark-bordered icon button |
+| `.btn-icon-standard` | Light-bordered icon button |
+| `.input-field` | Rounded-full input with focus ring |
+| `.glass` | Glassmorphism with backdrop-blur |
+| `.section-label` | Mono uppercase metadata label |
+| `.body-text` | Standard body paragraph |
+| `.mono-data` | Monospace tabular data |
 
 ---
 
 ## Dependencies
 
-These components expect the following to be available in the consuming app:
+Consuming apps need:
 
-- **React** 18+ (JSX runtime)
-- **Lucide React** (icon imports)
+- **React** 18+
+- **Lucide React** (icons)
 - **Tailwind CSS 4** (utility classes)
-
-The components do NOT depend on shadcn/ui or Radix UI — they use plain
-Tailwind classes so they work in any React + Tailwind project.
-
----
-
-## Theme Families
-
-| Theme | File | Primary Colour | Apps |
-|-------|------|---------------|------|
-| Digio | `theme-digio.css` | Magic Mint `#AAF0D1` | digio-website, digio-receipts, digio-invoices |
-| Kereone | `theme-kereone.css` | Blue-Teal `#4A7E8F` | kereone-roster, kereone-map |
-
-Both themes share the same structural colours (Bright Gray `#3C4151`),
-border values, and neutral tones. Only the `--primary`, `--secondary`,
-`--accent`, and `--ring` values differ.
-
----
-
-## Updating
-
-When consumed as a submodule, update across all repos:
-
-```bash
-cd shared-ui
-git pull origin main
-cd ..
-git add shared-ui
-git commit -m "Update shared-ui to latest"
-```
 
 ---
 
 ## Full Documentation
 
-See the complete styleguide in `docs/`:
-
-- [DESIGN-STANDARDS.md](docs/DESIGN-STANDARDS.md) — Unified style guide overview
-- [COLOURS.md](docs/styleguide/COLOURS.md) — Colour system
-- [TYPOGRAPHY.md](docs/styleguide/TYPOGRAPHY.md) — Font stack and type scale
-- [COMPONENTS.md](docs/styleguide/COMPONENTS.md) — Component patterns and specs
-- [ANIMATIONS.md](docs/styleguide/ANIMATIONS.md) — Transition tiers
-- [APP-THEMING.md](docs/styleguide/APP-THEMING.md) — New app setup guide
-- [KEREONE-THEME.md](docs/styleguide/KEREONE-THEME.md) — Kereone-specific theme
+- [DESIGN-STANDARDS.md](docs/DESIGN-STANDARDS.md) — Complete design system specification
+- [styleguide/](docs/styleguide/) — Detailed component and pattern docs
 
 ---
 
