@@ -212,16 +212,39 @@ Collapsible sidebar for all tool/app layouts:
 | State | Width |
 |-------|-------|
 | Expanded | `w-72` (288px) |
-| Collapsed | `w-[88px]` |
+| Collapsed | `w-16` (64px) |
 
 ### Rules
 
-- **No section labels** (Workspace, Your Tools, etc.) — use whitespace between groups
+- **No section labels** (Workspace, Your Tools, etc.) — use whitespace (`pt-2`) between groups
 - **Settings** always at the bottom, above the collapse toggle
 - **Collapse toggle** (`PanelLeft` / `PanelLeftClose` icon) at the very bottom
 - **Glass effect**: `bg-white/70 backdrop-blur-xl border-r border-slate-200/50`
-- **Nav items**: pill-shaped (`rounded-full`), active state = `bg-slate-900 text-white shadow-lg`
-- **Collapsed state**: icons only, tooltips via `title` attribute
+- **Nav items**: pill-shaped (`rounded-full`), fixed `h-10`, active state = `bg-slate-900 text-white shadow-lg`
+- **Collapsed state**: icons centered (`justify-center`), tooltips via `title` attribute
+- **Logo**: NOT in sidebar — logo lives in the top navbar only
+
+### Collapse Animation
+
+Icons must stay vertically fixed during collapse. Achieve this by:
+
+1. **Fixed row height** (`h-10`) on all nav items
+2. **Text hidden via CSS** (`w-0 opacity-0 overflow-hidden`) not conditional rendering
+3. **Icons centered when collapsed** (`justify-center px-0`), left-aligned when expanded (`px-2`)
+4. **Sidebar width transition**: `transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]`
+
+```jsx
+{/* NavItem pattern — icons stay in place during collapse */}
+<Link className={`h-10 flex items-center ${collapsed ? 'justify-center px-0' : 'px-2'} rounded-full`}>
+  <span className={`${collapsed ? 'w-auto' : 'w-10'} flex items-center justify-center shrink-0`}>
+    <Icon size={16} />
+  </span>
+  <span className={`whitespace-nowrap overflow-hidden transition-all duration-500
+    ${collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+    {label}
+  </span>
+</Link>
+```
 - **Transition**: `duration-500` for width change
 - **Mobile**: opens via `PanelLeft` icon in navbar, closes with `PanelLeftClose` at bottom
 
