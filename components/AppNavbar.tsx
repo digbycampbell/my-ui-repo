@@ -74,10 +74,20 @@ export function AppNavbar({
 
       {/* Left: Digio logo + tool label */}
       <div className="flex items-center gap-3 py-1">
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-600 shrink-0">
-          <span className="text-white text-xs font-bold">D</span>
-        </div>
-        <span className="text-lg font-display font-bold text-slate-900 tracking-tight">
+        {/* Geometric "D" SVG — matches Logo.jsx from digio-website */}
+        <svg
+          viewBox="0 0 100 100"
+          className="h-6 w-auto fill-current text-cyan-600 shrink-0"
+        >
+          <path
+            d="M30,20 L60,20 C80,20 85,35 85,50 C85,65 80,80 60,80 L30,80 Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="8"
+            strokeLinejoin="round"
+          />
+        </svg>
+        <span className="text-lg font-display font-bold tracking-tight text-slate-900">
           Digio<span className="text-cyan-600">.</span>
         </span>
         {toolLabel && (
