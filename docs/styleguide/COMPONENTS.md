@@ -1,6 +1,6 @@
 # Digio Component Patterns
 
-> **Version**: 3.1.0
+> **Version**: 3.2.0
 > **Last updated**: 2026-04-06
 > **Mode**: Light mode only
 
@@ -10,20 +10,34 @@
 
 All shared components live in `my-ui-repo/components/`.
 
-### AppHeader
+### AppNavbar (NEW — replaces AppHeader)
 
-Top navigation bar. Three-column grid layout, glassmorphism background, sticky positioning.
+Fixed top navigation bar. Matches the digio-website gold standard.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  [Logo] App Name          [Center Slot]   [Lock] [User] [≡] │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│ [≡] [D] Digio.  TOOLS     ...    [Actions] [Lock] [User] [→ Sign out] │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-- Layout: `grid grid-cols-[1fr_auto_1fr]`
-- Height: `h-14`
-- Position: `sticky top-0 z-50`
-- Background: glassmorphism (see Glassmorphism section)
+- Position: `fixed top-0 left-0 right-0 h-14 z-40`
+- Background: glassmorphism (`bg-white/70 backdrop-blur-xl border-b border-slate-200/50`)
+- Left: Mobile toggle (`PanelLeft`, `lg:hidden`) → Digio logo (cyan-600 D badge) → "Digio." branding → tool label (section-label style)
+- Right: Custom action buttons → `LockButton` → User email badge (indigo-500 avatar) → Sign out button (`LogOut` icon)
+
+Props:
+| Prop | Type | Description |
+|------|------|-------------|
+| `toolLabel` | `string` | Label shown after "Digio." (e.g. "Receipts", "TOOLS") |
+| `onMenuToggle` | `() => void` | Mobile sidebar toggle handler |
+| `actions` | `ReactNode` | Custom buttons between tool label and lock |
+| `isLocked` / `isValidating` / `onToggleLock` | lock state | Passed to internal LockButton |
+| `userEmail` | `string` | Displayed in user badge |
+| `onSignOut` | `() => void` | Sign out handler |
+
+### AppHeader (LEGACY)
+
+Still exported for backwards compatibility. New apps should use `AppNavbar` instead. The key difference: AppHeader uses a 3-column grid with `sticky` positioning, while AppNavbar uses a simple flex with `fixed` positioning matching the website.
 
 ### LockButton
 
@@ -34,6 +48,42 @@ Lock/edit toggle. Sits in the header beside user info.
 | **Locked** | Amber (`bg-amber-100 border-amber-300 text-amber-800`) | `Lock` | "Locked" |
 | **Editing** | Green (`bg-green-600 border-green-700 text-white`) | `Unlock` | "Editing" |
 | **Validating** | Amber | Spinner | "Checking..." |
+
+### SidebarShell (NEW)
+
+Fixed sidebar container with collapse animation, mobile overlay, and toggle button.
+
+- Position: `fixed top-14 left-0 bottom-0 z-50`
+- Background: glassmorphism
+- Width: `w-72` (expanded) → `w-[64px]` (collapsed)
+- Animation: `transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]`
+- Mobile: `-translate-x-full` when closed, overlay with `bg-slate-900/30 backdrop-blur-sm`
+- Bottom: PanelLeft/PanelLeftClose collapse toggle (desktop), Close button (mobile)
+
+Props:
+| Prop | Type | Description |
+|------|------|-------------|
+| `open` | `boolean` | Whether sidebar is visible on mobile |
+| `collapsed` | `boolean` | Whether sidebar shows icons only |
+| `onClose` | `() => void` | Close handler (mobile) |
+| `onToggleCollapse` | `() => void` | Collapse toggle handler |
+| `children` | `ReactNode` | Sidebar content (nav items, settings) |
+| `footer` | `ReactNode` | Optional content above collapse toggle |
+
+#### Nav Item Helper Functions
+
+```tsx
+import { sidebarNavItemClasses, sidebarNavIconClasses, sidebarNavLabelClasses } from "../shared-ui/components";
+
+<button className={sidebarNavItemClasses(collapsed, isActive, isDisabled)}>
+  <span className={sidebarNavIconClasses(collapsed)}>
+    <MyIcon size={16} />
+  </span>
+  <span className={sidebarNavLabelClasses(collapsed)}>
+    Label
+  </span>
+</button>
+```
 
 ### DateNavigator
 
@@ -74,6 +124,8 @@ Icon container with two sizes:
 ### ModalOverlay
 
 Full-screen modal for actions requiring full attention.
+
+> **Warning**: Never render ModalOverlay inside a sidebar or any element with CSS transforms. Always render at the root level of your app.
 
 - Overlay: `fixed inset-0 z-50 bg-black/80`
 - Content: `rounded-[40px]` (uses `card-bento` radius)
@@ -137,7 +189,7 @@ All buttons are pill-shaped with high-contrast styling.
 }
 ```
 
-Used on the AppHeader, sidebar, and any floating surface that sits over content.
+Used on the AppNavbar, SidebarShell, and any floating surface that sits over content.
 
 ---
 
@@ -167,16 +219,14 @@ Used on the AppHeader, sidebar, and any floating surface that sits over content.
 
 ## 8. Sidebar Pattern
 
-Reference: digio-website gold standard.
+Use the `SidebarShell` component (see Section 1) for all sidebar implementations. It provides collapse animation, mobile overlay, and the toggle button out of the box, matching the digio-website gold standard.
+
+For nav item styling, use the exported helper functions `sidebarNavItemClasses`, `sidebarNavIconClasses`, and `sidebarNavLabelClasses` rather than hand-rolling class strings.
 
 | Property | Value |
 |----------|-------|
-| Background | Glassmorphism (`.glass`) |
-| Width (expanded) | `w-72` |
-| Width (collapsed) | `w-[64px]` |
 | Nav item height | `h-10` |
 | Nav item shape | `rounded-full` |
 | Active nav item | `bg-slate-900 text-white shadow-lg` |
-| Collapse animation | `500ms` with `cubic-bezier(0.16, 1, 0.3, 1)` |
 | Settings position | Bottom of sidebar, above collapse toggle |
 | Section labels | None -- use whitespace between groups |

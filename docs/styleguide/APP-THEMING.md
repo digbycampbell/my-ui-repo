@@ -1,6 +1,6 @@
 # App Theming Guide
 
-> **Version**: 3.1.0
+> **Version**: 3.2.0
 > **Last updated**: 2026-04-06
 >
 > How to theme a new child app for the Digio design system.
@@ -63,7 +63,7 @@ Add the font snippet from `shared-ui/fonts.html` to your `index.html`:
 ### Step 4: Import shared components
 
 ```tsx
-import { AppHeader, LockButton, DateNavigator } from "../shared-ui/components";
+import { AppNavbar, LockButton, DateNavigator } from "../shared-ui/components";
 ```
 
 ### Step 5: Import design tokens
@@ -76,33 +76,67 @@ import { BRAND, TOOL_THEMES } from "../shared-ui/lib/design-system";
 
 ## 3. App Structure
 
-### Header
+### Layout Components
 
-All apps use the shared `AppHeader` component with:
-
-- Logo in top-left
-- App name: "digio [tool]" -- "digio" in `slate-900`, tool name in accent color
-- `LockButton` for edit gating
-
-### Sidebar
-
-Collapsible sidebar:
-
-- Expanded: 288px
-- Collapsed: 64px
-- Glassmorphism styling on header and sidebar
-
-### Content Area
+Every tool app uses three shared layout components:
 
 ```tsx
-<main className="min-h-screen bg-slate-50">
-  <div className="p-8 lg:p-12">
-    {/* Page content */}
-  </div>
-</main>
+import { AppNavbar, SidebarShell, LockButton, ReadOnlyBar, ModalOverlay } from "../shared-ui/components";
 ```
 
-Background: `bg-slate-50`. Light mode only -- no dark mode support needed.
+### Minimal App Shell
+
+```tsx
+function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isLocked, setIsLocked] = useState(true);
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <AppNavbar
+        toolLabel="MyTool"
+        onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+        isLocked={isLocked}
+        onToggleLock={() => setIsLocked(!isLocked)}
+        userEmail="user@digio.nz"
+        onSignOut={() => { sessionStorage.clear(); window.location.reload(); }}
+      />
+
+      <SidebarShell
+        open={sidebarOpen}
+        collapsed={sidebarCollapsed}
+        onClose={() => setSidebarOpen(false)}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+      >
+        {/* Sidebar nav items */}
+      </SidebarShell>
+
+      <main className={`pt-14 transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-16" : "lg:pl-72"
+      }`}>
+        <div className="p-8 lg:p-12">
+          {/* Page content */}
+        </div>
+      </main>
+
+      <ReadOnlyBar visible={isLocked} />
+    </div>
+  );
+}
+```
+
+### Tool Accent Usage
+
+The tool accent color (from `TOOL_THEMES`) should only be used for:
+- App name branding ("digio" in slate-900, tool name in accent)
+- Logo/icon badge background (e.g. `bg-[#f472b6]/10`)
+- Sparkles/feature icons
+
+NOT for:
+- Monetary amounts → use `text-emerald-600`
+- Data badges/counts → use `bg-cyan-50 text-cyan-600` (website accent)
+- Interactive borders → use `border-slate-200`
 
 ### Shape Language
 
@@ -157,7 +191,7 @@ Add this to any app's `CLAUDE.md`:
 ```markdown
 ## UI Standards
 
-This app follows the Digio Design Standards v3.1.0.
+This app follows the Digio Design Standards v3.2.0.
 Styleguide: https://github.com/digbycampbell/digio-website/tree/main/docs/styleguide
 
 Theme family: [digio|kereone]
@@ -166,16 +200,37 @@ Shared UI repo: https://github.com/digbycampbell/my-ui-repo
 
 ---
 
-## 8. New App Checklist
+## 8. Common Pitfalls
+
+### Pitfall: Modals inside sidebar
+Never render `ModalOverlay`, `AlertDialog`, or any `position:fixed` element inside the sidebar. CSS transitions create a new containing block that traps fixed children. Render all dialogs at the app root level.
+
+### Pitfall: Framer Motion for sidebar
+Don't use `<motion.aside>` for sidebar animation. The transform property traps fixed descendants. Use CSS `transition-[width]` instead (already handled by `SidebarShell`).
+
+### Pitfall: Stock shadcn/ui radii
+shadcn components default to `rounded-md` or `rounded-lg`. Override them:
+- Popover → `rounded-2xl`
+- AlertDialog content → `rounded-[32px]`
+- Progress indicator → `bg-slate-900` (not `bg-primary`)
+- Checkbox → `rounded` with `bg-slate-900` checked state
+
+### Pitfall: Using tool accent for data
+Monetary values and counts should use `text-emerald-600`, not the tool accent. The accent is for branding only.
+
+---
+
+## 9. New App Checklist
 
 - [ ] Choose theme family (digio/kereone)
 - [ ] Add shared-ui submodule
 - [ ] Import theme CSS + base CSS
 - [ ] Add Google Fonts (Inter, Outfit, Instrument Serif, JetBrains Mono)
-- [ ] Use AppHeader with LockButton
-- [ ] Implement collapsible sidebar
+- [ ] Use AppNavbar with LockButton and sign out
+- [ ] Use SidebarShell for collapsible sidebar
 - [ ] Use pill-shaped buttons and inputs
 - [ ] Use card-bento (40px) and card-standard (32px) radii
+- [ ] Override stock shadcn/ui component radii
 - [ ] Add glassmorphism to header/sidebar
 - [ ] Implement reduced motion support
 - [ ] Add CLAUDE.md with UI Standards section
