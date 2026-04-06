@@ -5,22 +5,21 @@
 > sophisticated, minimalist, Apple-inspired interface for the intersection of
 > power infrastructure and digital intelligence.
 >
-> **Version**: `3.0.0`
-> **Last updated**: 2026-04-05
+> **Version**: `3.1.0`
+> **Last updated**: 2026-04-06
 
 ---
 
-## What Changed in v3.0
+## What Changed in v3.1
 
-- **Complete redesign**: Adopted the digio-reimagined aesthetic as canonical
-- **New color palette**: Slate 950 / Cyan 600 / Indigo 600 (replaces Magic Mint)
-- **The Harmonized Method**: 4-font typographic system (Outfit, Inter, Instrument Serif, JetBrains Mono)
-- **Light mode exclusive**: Dark mode removed per April 2026 iteration
-- **Pill-shaped UI**: All buttons, nav items, and tags use `rounded-full`
-- **Bento grid layout**: Cards use `rounded-[40px]` with generous padding
-- **Glassmorphism**: Translucent navbar and sidebar with `backdrop-blur-xl`
-- **Standardized button system**: `.btn-primary`, `.btn-secondary`, `.btn-outline`, `.btn-ghost`, `.btn-status-locked/unlocked`, `.btn-icon-dark/standard`
-- **Design tokens file**: `lib/design-system.ts` as single source of truth
+- **Background colors**: Documented `bg-slate-50` as acceptable for app areas, dashboards, and section contrast
+- **Card radius system**: Two classes — `.card-bento` (`rounded-[40px]`) for large/feature cards, `.card-standard` (`rounded-[32px]`) for project/info/form cards
+- **Textarea input**: Added `.input-textarea` class with `rounded-2xl` instead of pill shape
+- **Transition speeds**: Two tiers — `duration-200` for micro-interactions, `duration-500` for layout/page transitions
+- **Link hover**: Standardized to cyan color change (no underline). Logo links have no color change.
+- **Sidebar pattern**: Documented collapsible sidebar (288px → 88px), Settings at bottom, no section labels
+- **Disabled state**: Standardized to `opacity-50`
+- **CSS utility classes**: `.section-label`, `.body-text`, `.mono-data` now implemented across website
 
 ---
 
@@ -30,16 +29,20 @@
 |---------|----------|
 | **Primary color** | Slate 950 `#0f172a` |
 | **Accent color** | Cyan 600 `#0891b2` |
-| **Secondary color** | Indigo 600 `#4f46e5` |
+| **Secondary color** | Indigo 600 `#4f46e5` (reserved for future use) |
 | **Display font** | Outfit |
 | **Body font** | Inter |
-| **Serif accents** | Instrument Serif |
+| **Serif accents** | Instrument Serif (editorial use, sparingly) |
 | **Mono font** | JetBrains Mono |
 | **Icons** | Lucide React |
-| **Card radius** | `rounded-[40px]` (bento) or `rounded-[32px]` |
+| **Bento card radius** | `.card-bento` / `rounded-[40px]` |
+| **Standard card radius** | `.card-standard` / `rounded-[32px]` |
 | **Button shape** | `rounded-full` (pill) |
-| **Transitions** | `duration-300` with `ease: [0.16, 1, 0.3, 1]` |
+| **Fast transition** | `duration-200` (hover, press, micro) |
+| **Slow transition** | `duration-500` (layout, page, sidebar) |
+| **Entry animation** | `ease: [0.16, 1, 0.3, 1]` |
 | **Theme mode** | Light only |
+| **Disabled opacity** | `opacity-50` |
 
 ---
 
@@ -65,8 +68,9 @@
 
 - **Hero titles**: `text-6xl md:text-8xl lg:text-9xl font-display font-bold tracking-tight`
 - **Section headers**: `text-3xl md:text-5xl font-display font-bold tracking-tight`
-- **Metadata labels**: `text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-slate-400`
-- **Body text**: `text-sm text-slate-500 leading-relaxed font-medium`
+- **Metadata labels**: `.section-label text-slate-400` (or `text-cyan-600` for accent)
+- **Body text**: `.body-text` or `text-sm text-slate-500 leading-relaxed`
+- **Mono data**: `.mono-data` for amounts, codes, percentages
 
 ---
 
@@ -74,25 +78,27 @@
 
 ### Brand Colors
 
-| Color | Hex | Role |
-|-------|-----|------|
-| Primary | `#0f172a` | Slate 950 — Structure, headings, primary buttons |
-| Accent | `#0891b2` | Cyan 600 — Digital energy, links, highlights |
-| Secondary | `#4f46e5` | Indigo 600 — Tech-forward, secondary accents |
-| Surface | `#ffffff` | White — Component backgrounds |
-| Border | `#e2e8f0` | Slate 200 — Subtle separators |
+| Color | Hex | Tailwind | Role |
+|-------|-----|----------|------|
+| Primary | `#0f172a` | `text-slate-900` | Structure, headings, primary buttons |
+| Accent | `#0891b2` | `text-cyan-600` | Links, highlights, section labels |
+| Secondary | `#4f46e5` | `text-indigo-600` | Reserved for future use |
+| Surface | `#ffffff` | `bg-white` | Primary component backgrounds |
+| Surface Alt | `#f8fafc` | `bg-slate-50` | App areas, dashboards, section contrast |
+| Border | `#e2e8f0` | `border-slate-200` | Subtle separators |
 
 ### Text Hierarchy
 
-| Level | Hex | Tailwind |
-|-------|-----|----------|
-| High | `#0f172a` | `text-slate-900` |
-| Medium | `#475569` | `text-slate-600` |
-| Low | `#94a3b8` | `text-slate-400` |
+| Level | Hex | Tailwind | Usage |
+|-------|-----|----------|-------|
+| High | `#0f172a` | `text-slate-900` | Headings, bold values, primary text |
+| Medium | `#475569` | `text-slate-600` | Secondary text, descriptions |
+| Low | `#94a3b8` | `text-slate-400` | Metadata labels, muted text |
+| Accent | `#0891b2` | `text-cyan-600` | Section labels, links, highlights |
 
 ### Tool Themes
 
-Each tool gets a unique accent color applied sparingly:
+Each tool gets a unique accent color applied sparingly (via `TOOL_THEMES` in `design-system.ts`):
 
 | Tool | Primary | Accent |
 |------|---------|--------|
@@ -102,9 +108,25 @@ Each tool gets a unique accent color applied sparingly:
 
 ---
 
+## Card Radius System
+
+Two standard card radii for consistent visual hierarchy:
+
+| Class | Radius | Usage |
+|-------|--------|-------|
+| `.card-bento` | `rounded-[40px]` | Large feature cards, hero cards, modals, tool launcher cards |
+| `.card-standard` | `rounded-[32px]` | Project cards, info cards, form cards, timeline cards |
+
+Additional radii used contextually:
+- `rounded-2xl` (16px) — icon containers, textareas, small panels
+- `rounded-xl` (12px) — icon buttons, status buttons
+- `rounded-full` — all pill-shaped elements (buttons, inputs, tags, nav items)
+
+---
+
 ## Button System
 
-All buttons are pill-shaped (`rounded-full`) with `active:scale-[0.98]`:
+All buttons are pill-shaped (`rounded-full`) with `active:scale-[0.98]` and `duration-200`:
 
 | Class | Style |
 |-------|-------|
@@ -117,35 +139,144 @@ All buttons are pill-shaped (`rounded-full`) with `active:scale-[0.98]`:
 | `.btn-icon-dark` | Icon button with dark border |
 | `.btn-icon-standard` | Icon button with light border |
 
+### Disabled State
+
+All disabled buttons use `opacity-50 cursor-not-allowed`.
+
+---
+
+## Form Inputs
+
+| Class | Shape | Usage |
+|-------|-------|-------|
+| `.input-field` | `rounded-full` (pill) | Text inputs, email, select |
+| `.input-textarea` | `rounded-2xl` | Multi-line text areas |
+
+Both share: white bg, slate-200 border, `focus:ring-2 focus:ring-slate-400/50`,
+disabled state with `opacity-50 bg-slate-50`.
+
+### Form Labels
+
+Use `.section-label text-slate-400` for form field labels:
+
+```jsx
+<label className="section-label text-slate-400">Email</label>
+<input className="input-field w-full" />
+```
+
+### Validation Errors
+
+```jsx
+<p className="text-red-500 text-xs">{error}</p>
+```
+
+---
+
+## Transition & Animation
+
+### Two-Tier System
+
+| Tier | Duration | Usage |
+|------|----------|-------|
+| **Fast** | `duration-200` | Button hover/press, icon hover, color changes, micro-interactions |
+| **Slow** | `duration-500` | Sidebar collapse, page transitions, layout shifts, card hover elevation |
+
+### Entry Animations (Framer Motion)
+
+```jsx
+initial={{ opacity: 0, y: 20 }}
+animate={{ opacity: 1, y: 0 }}
+transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+```
+
+### Card Hover
+
+Cards use `hover:shadow-lg` with `duration-500`. Image zoom uses
+`group-hover:scale-105 transition-transform duration-1000`.
+
+---
+
+## Link Behavior
+
+- **Text links**: Color change to `text-cyan-600` on hover. No underline.
+- **Card links**: Heading text changes to `text-cyan-600` on hover via `group-hover`.
+- **Logo links**: `hover:opacity-80` only. No color change, no underline.
+- **Footer links**: Color change to `text-slate-900` on hover.
+
+---
+
+## Sidebar Pattern
+
+Collapsible sidebar for all tool/app layouts:
+
+| State | Width |
+|-------|-------|
+| Expanded | `w-72` (288px) |
+| Collapsed | `w-[88px]` |
+
+### Rules
+
+- **No section labels** (Workspace, Your Tools, etc.) — use whitespace between groups
+- **Settings** always at the bottom, above the collapse toggle
+- **Collapse toggle** (`PanelLeft` / `PanelLeftClose` icon) at the very bottom
+- **Glass effect**: `bg-white/70 backdrop-blur-xl border-r border-slate-200/50`
+- **Nav items**: pill-shaped (`rounded-full`), active state = `bg-slate-900 text-white shadow-lg`
+- **Collapsed state**: icons only, tooltips via `title` attribute
+- **Transition**: `duration-500` for width change
+- **Mobile**: opens via `PanelLeft` icon in navbar, closes with `PanelLeftClose` at bottom
+
 ---
 
 ## Component Patterns
-
-### Bento Cards
-```jsx
-<div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-10">
-  {/* Content */}
-</div>
-```
 
 ### Glassmorphism Navbar
 ```jsx
 <nav className="bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
 ```
 
-### Metadata Label
+### Section Label (accent)
 ```jsx
-<span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-[0.2em]">
-  Label Text
-</span>
+<div className="section-label text-cyan-600 mb-6">About</div>
+```
+
+### Section Label (meta)
+```jsx
+<p className="section-label text-slate-400 mb-1">Base</p>
 ```
 
 ### Status Badge
 ```jsx
-<span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full bg-emerald-50 text-emerald-600">
+<span className="section-label px-3 py-1 rounded-full bg-emerald-50 text-emerald-600">
   Active
 </span>
 ```
+
+### Heading with Cyan Dot
+```jsx
+<h1 className="font-display font-bold text-slate-900 tracking-tight">
+  Title<span className="text-cyan-600">.</span>
+</h1>
+```
+
+---
+
+## Spacing
+
+### Section Padding
+
+| Context | Padding |
+|---------|---------|
+| Marketing sections | `py-20` to `py-32` |
+| Page top (below fixed nav) | `pt-40` |
+| App content area | `p-8 lg:p-12` |
+
+### Grid Gaps
+
+| Context | Gap |
+|---------|-----|
+| Large section grids | `gap-12` to `gap-16` |
+| Card grids | `gap-6` to `gap-8` |
+| Inline elements | `gap-2` to `gap-4` |
 
 ---
 
@@ -156,10 +287,11 @@ All buttons are pill-shaped (`rounded-full`) with `active:scale-[0.98]`:
 | Path | Contents |
 |------|----------|
 | `css/theme-digio.css` | Brand colors + shadcn/ui CSS variables |
-| `css/digio-base.css` | Button system, glassmorphism, typography, inputs |
+| `css/theme-kereone.css` | Kereone theme variant (retained for future use) |
+| `css/digio-base.css` | Buttons, glass, typography, cards, inputs |
 | `lib/design-system.ts` | BRAND tokens, TOOL_THEMES, TypeScript types |
 | `components/` | Shared React components (AppHeader, LockButton, etc.) |
-| `fonts.html` | Google Fonts preload snippet |
+| `fonts.html` | Google Fonts preload snippet (4 fonts) |
 
 ### Usage
 
@@ -183,12 +315,14 @@ import { AppHeader } from "../shared-ui/components";
 
 When extending this design system:
 
-1. **Adhere to the Grid**: Use bento grid pattern. Cards = `rounded-[40px]`.
-2. **Maintain Typographic Hierarchy**: Display (Outfit) for headings, Inter for body, Mono for metadata.
-3. **Color Usage**: Primary = solid high-contrast. Accent = sparingly for highlights.
-4. **No custom CSS files**: Use Tailwind utilities and the CSS classes from `digio-base.css`.
+1. **Adhere to the Grid**: Use bento grid pattern. Large cards = `.card-bento`, standard = `.card-standard`.
+2. **Maintain Typographic Hierarchy**: Display (Outfit) for headings, Inter for body, Mono for labels.
+3. **Use CSS utility classes**: `.section-label`, `.body-text`, `.mono-data`, `.btn-*`, `.input-field`.
+4. **Color Usage**: Primary = solid high-contrast. Accent (cyan) = sparingly for highlights and links.
 5. **No dark mode**: Light mode exclusive.
-6. **Use motion**: Prefer `y: 20` to `y: 0` with `ease: [0.16, 1, 0.3, 1]` for entry animations.
+6. **Transitions**: `duration-200` for micro, `duration-500` for layout. Entry animations use `ease: [0.16, 1, 0.3, 1]`.
+7. **Sidebar**: Collapsible, no section labels, Settings + collapse toggle at bottom.
+8. **Links**: Color change to cyan on hover. No underline. Logo = opacity change only.
 
 ---
 
@@ -198,4 +332,5 @@ When extending this design system:
 |---------|------|--------|
 | 1.0.0 | 2026-03-25 | Initial design standards extracted from digio-website |
 | 2.0.0 | 2026-04-02 | Unified styleguide: two theme families, Outfit + JetBrains Mono |
-| 3.0.0 | 2026-04-05 | **Reimagined design system**: New palette (Slate/Cyan/Indigo), 4-font harmonized method, light mode exclusive, pill UI, bento grids, glassmorphism, standardized button system |
+| 3.0.0 | 2026-04-05 | Reimagined design system: Slate/Cyan/Indigo, 4-font harmonized method, pill UI, bento grids, glassmorphism |
+| 3.1.0 | 2026-04-06 | Gap analysis fixes: backgrounds, card radii, sidebar spec, transitions, links, forms, spacing, CSS utility adoption |
