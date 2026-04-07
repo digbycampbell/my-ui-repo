@@ -34,7 +34,7 @@ export function LockButton({
       disabled={isValidating}
       className={[
         isLocked ? "btn-status-locked" : "btn-status-unlocked",
-        "h-7 md:h-8 px-2 md:px-3 text-[11px]",
+        "h-7 sm:h-9 px-2 sm:px-4 text-[11px] sm:text-xs",
         "flex-shrink-0",
         className,
       ]
@@ -42,13 +42,13 @@ export function LockButton({
         .join(" ")}
     >
       {isValidating ? (
-        <div className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+        <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
       ) : isLocked ? (
-        <Lock className="w-3.5 h-3.5" />
+        <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
       ) : (
-        <Unlock className="w-3.5 h-3.5" />
+        <Unlock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
       )}
-      <span className="hidden md:inline font-semibold">
+      <span className="hidden sm:inline font-semibold">
         {isValidating ? "Checking..." : isLocked ? "Locked" : "Editing"}
       </span>
     </button>
