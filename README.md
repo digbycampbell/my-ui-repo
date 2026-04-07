@@ -69,6 +69,50 @@ git submodule add https://github.com/digbycampbell/my-ui-repo.git shared-ui
 @import "../shared-ui/css/digio-base.css";
 ```
 
+> **⚠ Replit submodule caveat**
+>
+> Git submodules do **not** auto-initialise on Replit. When Replit clones
+> a repo it does a shallow clone without submodule recursion, so the
+> `shared-ui/` directory will be **empty** on first run. Any CSS
+> `@import` or TypeScript `import` that references files inside the
+> submodule will fail at build/dev time with errors like:
+>
+> ```
+> Can't resolve '../../shared-ui/css/theme-kereone.css'
+> ```
+>
+> **Recommended approach — inline the CSS:**
+>
+> Copy the contents of the relevant theme file (`theme-digio.css` or
+> `theme-kereone.css`) and `digio-base.css` directly into your app's
+> `index.css`. Add a comment noting the source so it can be kept in sync:
+>
+> ```css
+> /* From shared-ui/css/theme-kereone.css — keep in sync */
+> :root { ... }
+>
+> /* From shared-ui/css/digio-base.css — keep in sync */
+> .glass { ... }
+> ```
+>
+> Do the same for any shared components you need (e.g. `LockButton`) —
+> copy them into your app's local `components/` directory rather than
+> importing from the submodule path.
+>
+> This keeps the submodule in the repo as a **design reference** (for
+> docs, tokens, and the source of truth) without making it a
+> **build-time dependency** that breaks on Replit.
+>
+> If you still want the `@import` approach for non-Replit environments,
+> add pre-hooks to `package.json` to attempt submodule init before
+> dev/build (this is what `digio-receipts` does, but it only works when
+> git has network access to GitHub):
+>
+> ```json
+> "predev": "git submodule update --init --recursive 2>/dev/null || true",
+> "prebuild": "git submodule update --init --recursive 2>/dev/null || true"
+> ```
+
 ### 3. Add fonts (copy to `<head>` of index.html)
 
 ```html
