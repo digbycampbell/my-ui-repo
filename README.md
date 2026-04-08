@@ -184,6 +184,7 @@ All apps need this block in `index.css` (after the inlined CSS, before
 | App | Theme | Base CSS | LockButton | ModalOverlay | ReadOnlyBar | Fonts |
 |-----|-------|----------|------------|--------------|-------------|-------|
 | digio-receipts | `theme-digio.css` (inlined) | `digio-base.css` (inlined) | local copy | local copy | local copy | matching |
+| digio-invoices | `theme-digio.css` (inlined) | `digio-base.css` (inlined) | local copy | n/a | local copy | matching |
 | kereone-map | `theme-kereone.css` (inlined) | `digio-base.css` (inlined) | local copy | n/a | n/a | matching |
 
 ---
