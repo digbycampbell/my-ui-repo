@@ -4,7 +4,7 @@ Shared components, theme CSS, design tokens, and documentation for the Digio eco
 Based on the Apple-inspired digio-reimagined design language.
 
 > **Repo**: `github.com/digbycampbell/my-ui-repo`
-> **Version**: `3.0.0`
+> **Version**: `3.1.0`
 
 ---
 
@@ -179,13 +179,71 @@ All apps need this block in `index.css` (after the inlined CSS, before
 
 ---
 
+## Auth Integration
+
+All Digio apps share cookie-based JWT authentication on `.digio.nz`
+(AUTH-CONTRACT v4.0.0). The `AppNavbar` supports displaying the
+authenticated user's name and email.
+
+### Navbar user badge
+
+Pass the authenticated user's data to `AppNavbar`:
+
+```tsx
+<AppNavbar
+  userName={authUser.name}
+  userEmail={authUser.email}
+  onSignOut={() => logout()}
+  ...
+/>
+```
+
+The avatar initial prefers `userName` over `userEmail` (shows first
+letter of name if available, otherwise first letter of email).
+
+### Auth check endpoint
+
+Each app's server exposes `GET /api/auth/check`:
+
+```json
+{ "sub": "...", "email": "user@digio.nz", "name": "User Name", "permissions": ["..."] }
+```
+
+The client calls `checkAuth()` on mount to get the user data. Store it
+and pass `email`/`name` to the navbar — do **not** hardcode email addresses.
+
+---
+
+## Build-Time Import — Why Manual Copy
+
+Git submodules do not work reliably on Replit (shallow clones without
+recursion). Path aliases pointing into `shared-ui/` fail at build time
+because the submodule directory is empty. Workspace references
+(`package.json` workspaces) also require the submodule to be populated.
+
+**Evaluated approaches:**
+
+| Approach | Result |
+|----------|--------|
+| Git submodule + `@import` | Fails — Replit shallow clone, empty dir |
+| Path alias (`@shared-ui/*`) | Fails — same empty dir issue |
+| npm workspace reference | Fails — requires populated submodule |
+| Published npm package | Viable but adds publish/version overhead |
+| Manual copy (current) | Works reliably, each app self-contained |
+
+If the team moves off Replit, submodule imports or an npm workspace
+would be the recommended upgrade path.
+
+---
+
 ## Current Rollout Status
 
-| App | Theme | Base CSS | LockButton | ModalOverlay | ReadOnlyBar | Fonts |
-|-----|-------|----------|------------|--------------|-------------|-------|
-| digio-receipts | `theme-digio.css` (inlined) | `digio-base.css` (inlined) | local copy | local copy | local copy | matching |
-| digio-invoices | `theme-digio.css` (inlined) | `digio-base.css` (inlined) | local copy | n/a | local copy | matching |
-| kereone-map | `theme-kereone.css` (inlined) | `digio-base.css` (inlined) | local copy | n/a | n/a | matching |
+| App | Theme | Base CSS | LockButton | ModalOverlay | ReadOnlyBar | AppNavbar | Fonts |
+|-----|-------|----------|------------|--------------|-------------|-----------|-------|
+| digio-receipts | `theme-digio.css` (inlined) | `digio-base.css` (inlined) | local copy | local copy | local copy | inlined in home.tsx | matching |
+| digio-invoices | `theme-digio.css` (inlined) | `digio-base.css` (inlined) | local copy | n/a | local copy | inlined | matching |
+| digio-website | local in `index.css` | local in `index.css` | n/a | n/a | n/a | `AppNavbar.jsx` | matching |
+| kereone-map | `theme-kereone.css` (inlined) | `digio-base.css` (inlined) | local copy | n/a | n/a | n/a | matching |
 
 ---
 

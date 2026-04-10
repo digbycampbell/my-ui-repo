@@ -16,6 +16,7 @@
  *   actions={<button className="btn-primary py-2 px-4 text-sm">Analyze</button>}
  *   isLocked={isLocked}
  *   onToggleLock={handleToggleLock}
+ *   userName="Digby Campbell"
  *   userEmail="user@digio.nz"
  *   onSignOut={() => { sessionStorage.clear(); window.location.reload(); }}
  * />
@@ -42,6 +43,8 @@ export interface AppNavbarProps {
   isValidating?: boolean;
   /** Called when the lock button is toggled */
   onToggleLock?: () => void;
+  /** User's display name (used for avatar initial, falls back to email) */
+  userName?: string;
   /** User email displayed in the badge */
   userEmail?: string;
   /** Called when the sign out button is clicked */
@@ -57,6 +60,7 @@ export function AppNavbar({
   isLocked,
   isValidating,
   onToggleLock,
+  userName,
   userEmail,
   onSignOut,
 }: AppNavbarProps) {
@@ -133,8 +137,8 @@ export function AppNavbar({
 
         {userEmail && (
           <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
-            <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
-              {userEmail[0]?.toUpperCase()}
+            <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white uppercase">
+              {(userName || userEmail)[0]}
             </div>
             <span className="text-xs font-medium text-slate-600">
               {userEmail}
