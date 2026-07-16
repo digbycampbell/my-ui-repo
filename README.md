@@ -31,7 +31,8 @@ my-ui-repo/
 │   ├── ModalOverlay.tsx  # Full-screen modal with backdrop blur
 │   ├── DateNavigator.tsx # Date stepping control
 │   ├── Card.tsx          # Standard card component
-│   └── IconBadge.tsx     # Icon container
+│   ├── IconBadge.tsx     # Icon container
+│   └── DateInput.tsx     # Masked DD-MM-YYYY date input
 ├── css/                  # Theme & utility CSS (source of truth)
 │   ├── theme-digio.css   # Digio brand (Slate/Cyan/Indigo)
 │   ├── theme-kereone.css # Kereone brand (Blue-Teal)
