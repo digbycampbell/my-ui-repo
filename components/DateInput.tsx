@@ -2,8 +2,8 @@
  * DateInput — Masked date input for the Digio ecosystem.
  *
  * Format: DD-MM-YYYY with fixed hyphens. The user can only type digits;
- * hyphens auto-appear at positions 2 and 5, and cursor movement skips
- * over them (backspace/arrow keys included).
+ * hyphens auto-appear at positions 2 and 5. Backspace at a hyphen boundary
+ * deletes the preceding digit while preserving the rest of the value.
  *
  * Value is always in DD-MM-YYYY format (or partial while typing).
  * Styling comes entirely from the consumer via className.
@@ -39,18 +39,30 @@ export function DateInput({ value, onChange, placeholder = "DD-MM-YYYY", classNa
   }, []);
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatValue(e.target.value);
+    const el = e.target;
+    const originalSelectionStart = el.selectionStart ?? 0;
+    const rawValue = el.value;
+
+    // Count the digits before the cursor so we can restore an equivalent
+    // position in the reformatted (hyphenated) value.
+    const digitsBeforeCursor = rawValue.slice(0, originalSelectionStart).replace(/\D/g, "").length;
+    const formatted = formatValue(rawValue);
     onChange(formatted);
 
-    // Position cursor after the auto-inserted hyphen
     requestAnimationFrame(() => {
-      const el = inputRef.current;
-      if (!el) return;
-      const digits = formatted.replace(/\D/g, "").length;
-      // After 2 digits, cursor should be at pos 3 (after "DD-")
-      // After 4 digits, cursor should be at pos 6 (after "DD-MM-")
-      if (digits === 2 && formatted.length === 3) el.setSelectionRange(3, 3);
-      else if (digits === 4 && formatted.length === 6) el.setSelectionRange(6, 6);
+      const input = inputRef.current;
+      if (!input) return;
+
+      let newPos = 0;
+      let digitCount = 0;
+      while (newPos < formatted.length && digitCount < digitsBeforeCursor) {
+        if (/\d/.test(formatted[newPos])) digitCount++;
+        newPos++;
+      }
+      // Land after an auto-inserted hyphen rather than before it.
+      if (newPos < formatted.length && formatted[newPos] === "-") newPos++;
+
+      input.setSelectionRange(newPos, newPos);
     });
   }, [formatValue, onChange]);
 
@@ -59,28 +71,20 @@ export function DateInput({ value, onChange, placeholder = "DD-MM-YYYY", classNa
     if (!el) return;
     const pos = el.selectionStart ?? 0;
 
-    // Backspace at position right after a hyphen: skip the hyphen
-    if (e.key === "Backspace" && (pos === 3 || pos === 6)) {
+    // Backspace right after a hyphen: delete the single digit before the hyphen,
+    // preserving everything after the cursor. Skip when text is selected so
+    // normal selection-delete still works.
+    if (e.key === "Backspace" && el.selectionStart === el.selectionEnd && (pos === 3 || pos === 6)) {
       e.preventDefault();
       const digits = value.replace(/\D/g, "");
-      const trimmed = digits.slice(0, pos === 3 ? 1 : 3);
-      const formatted = formatValue(trimmed);
+      const deleteIdx = pos === 3 ? 1 : 3;
+      const remainingDigits = digits.slice(0, deleteIdx) + digits.slice(deleteIdx + 1);
+      const formatted = formatValue(remainingDigits);
       onChange(formatted);
       requestAnimationFrame(() => {
-        el.setSelectionRange(pos - 1, pos - 1);
+        const newPos = pos - 2;
+        el.setSelectionRange(newPos, newPos);
       });
-    }
-
-    // Arrow right at hyphen: skip past it
-    if (e.key === "ArrowRight" && (pos === 2 || pos === 5)) {
-      e.preventDefault();
-      el.setSelectionRange(pos + 1, pos + 1);
-    }
-
-    // Arrow left at position after hyphen: skip back past it
-    if (e.key === "ArrowLeft" && (pos === 3 || pos === 6)) {
-      e.preventDefault();
-      el.setSelectionRange(pos - 1, pos - 1);
     }
   }, [value, formatValue, onChange]);
 
