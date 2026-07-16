@@ -34,6 +34,10 @@ export type { IconBadgeProps } from "./IconBadge";
 export { ModalOverlay } from "./ModalOverlay";
 export type { ModalOverlayProps } from "./ModalOverlay";
 
+// Form inputs
+export { DateInput } from "./DateInput";
+export type { DateInputProps } from "./DateInput";
+
 // Legacy — use AppNavbar instead for new apps
 export { AppHeader } from "./AppHeader";
 export type { AppHeaderProps } from "./AppHeader";
